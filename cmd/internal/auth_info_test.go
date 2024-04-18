@@ -32,7 +32,7 @@ func TestNewPrivateToken(t *testing.T) {
 	}
 }
 
-func TestNewBasicAuthInfoFromJSON(t *testing.T) {
+func TestNewBasicAuthInfoFromXML(t *testing.T) {
 	type Data []struct {
 		root string
 		username string
@@ -42,44 +42,54 @@ func TestNewBasicAuthInfoFromJSON(t *testing.T) {
 
 	data := Data{
 		{
-			root: `{"username": "foo", "password": "bar"}`,
+			root: `
+                <AuthInfo>
+                    <username>foo</username>
+                    <password>bar</password>
+                </AuthInfo>`,
 			username: "foo",
 			password: "bar",
 			err: nil,
 		},
 		{
-			root: `{"oauth-token": "<token>"}`,
+			root: `
+                <AuthInfo>
+                    <oauth-token>token</oauth-token>
+                </AuthInfo>`,
 			username: "",
 			password: "",
-			err: ErrAuthInfoInvalidJSON,
+			err: ErrAuthInfoInvalidXML,
 		},
 		{
-			root: `{"private-token": "<token>"}`,
+			root: `
+                <AuthInfo>
+                    <private-token>token</private-token>
+                </AuthInfo>`,
 			username: "",
 			password: "",
-			err: ErrAuthInfoInvalidJSON,
+			err: ErrAuthInfoInvalidXML,
 		},
 	}
 
 	for _, d := range data {
 
 		r := strings.NewReader(d.root)
-		authInfo, err := NewBasicAuthInfoFromJSON(r)
+		authInfo, err := NewBasicAuthInfoFromXML(r)
 		if err != d.err {	
 			t.Fatalf("unexpected error: %v: %s", err, d.root)
 		}
 		if d.err == nil {
 			if authInfo.Username != d.username {
-				t.Errorf("invalid username: expected=%q  actual=%q", "<username>", authInfo.Username)
+				t.Errorf("invalid username: expected=%q  actual=%q", d.username, authInfo.Username)
 			}
 			if authInfo.Password != d.password {
-				t.Errorf("invalid password: expected=%q  actual=%q", "<password>", authInfo.Password)
+				t.Errorf("invalid password: expected=%q  actual=%q", d.password, authInfo.Password)
 			}
 		}
 	}
 }
 
-func TestNewOAuthTokenFromJSON(t *testing.T) {
+func TestNewOAuthTokenFromXML(t *testing.T) {
 	type Data []struct {
 		root string
 		token string
@@ -88,38 +98,47 @@ func TestNewOAuthTokenFromJSON(t *testing.T) {
 
 	data := Data{
 		{
-			root: `{"oauth-token": "<token>"}`,
-			token: "<token>",
+			root: `
+                <AuthInfo>
+                    <oauth-token>token</oauth-token>
+                </AuthInfo>`,
+			token: "token",
 			err: nil,
 		},
 		{
-			root: `{"private-token": "<token>"}`,
-			token: "",
-			err: ErrAuthInfoInvalidJSON,
+			root: `
+                <AuthInfo>
+                    <username>foo</username>
+                    <password>bar</password>
+                </AuthInfo>`,
+			err: ErrAuthInfoInvalidXML,
 		},
 		{
-			root: `{"username": "foo", "password": "bar"}`,
-			token: "",
-			err: ErrAuthInfoInvalidJSON,
+			root: `
+                <AuthInfo>
+                    <private-token>token</private-token>
+                </AuthInfo>`,
+			token: "token",
+			err: ErrAuthInfoInvalidXML,
 		},
 	}
 
 	for _, d := range data {
 
 		r := strings.NewReader(d.root)
-		token, err := NewOAuthTokenFromJSON(r)
+		token, err := NewOAuthTokenFromXML(r)
 		if err != d.err {	
 			t.Fatalf("unexpected error: %v: %s", err, d.root)
 		}
 		if d.err == nil {
 			if token.Token != d.token {
-				t.Errorf("invalid token: expected=%q  actual=%q", "<token>", token.Token)
+				t.Errorf("invalid token: expected=%q  actual=%q", d.token, token.Token)
 			}
 		}
 	}
 }
 
-func TestPrivateTokenFromJSON(t *testing.T) {
+func TestPrivateTokenFromXML(t *testing.T) {
 	type Data []struct {
 		root string
 		token string
@@ -128,32 +147,41 @@ func TestPrivateTokenFromJSON(t *testing.T) {
 
 	data := Data{
 		{
-			root: `{"private-token": "<token>"}`,
-			token: "<token>",
+			root: `
+                <AuthInfo>
+                    <private-token>token</private-token>
+                </AuthInfo>`,
+			token: "token",
 			err: nil,
 		},
 		{
-			root: `{"oauth-token": "<token>"}`,
-			token: "",
-			err: ErrAuthInfoInvalidJSON,
+			root: `
+                <AuthInfo>
+                    <oauth-token>token</oauth-token>
+                </AuthInfo>`,
+			token: "token",
+			err: ErrAuthInfoInvalidXML,
 		},
 		{
-			root: `{"username": "foo", "password": "bar"}`,
-			token: "",
-			err: ErrAuthInfoInvalidJSON,
+			root: `
+                <AuthInfo>
+                    <username>foo</username>
+                    <password>bar</password>
+                </AuthInfo>`,
+			err: ErrAuthInfoInvalidXML,
 		},
 	}
 
 	for _, d := range data {
 
 		r := strings.NewReader(d.root)
-		token, err := NewPrivateTokenFromJSON(r)
+		token, err := NewPrivateTokenFromXML(r)
 		if err != d.err {	
 			t.Fatalf("unexpected error: %v: %s", err, d.root)
 		}
 		if d.err == nil {
 			if token.Token != d.token {
-				t.Errorf("invalid token: expected=%q  actual=%q", "<token>", token.Token)
+				t.Errorf("invalid token: expected=%q  actual=%q", d.token, token.Token)
 			}
 		}
 	}

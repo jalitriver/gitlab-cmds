@@ -10,11 +10,11 @@ import(
 
 func main() {
 
-	// FIXME: Should be option in config.json.
+	// FIXME: Should be option in config.xml.
 	baseURL := "https://gitlab.serice.net/api/v4"
 	
-	// FIXME: Should be option in config.json.
-	fname := "/home/pserice/src/go/gitlab-cmds.git/auth.json"
+	// FIXME: Should be option in config.xml.
+	fname := "/home/pserice/src/go/gitlab-cmds.git/auth.xml"
 
 	// Load the authentication information from file.
 	authInfo, err := internal.LoadAuthInfo(fname)

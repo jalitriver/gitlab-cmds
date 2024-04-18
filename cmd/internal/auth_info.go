@@ -1,27 +1,33 @@
-// This file is used for reading the user's access token from a JSON
+// This file is used for reading the user's access token from a XML
 // file.  The file should have one of the following formats:
 //
-//     // Basic Authentication
-//     {
-//         "username": "<username>",
-//         "password": "password"
-//     }
-//
-//     // OAuth Token
-//     {
-//         "oauth-token: "token"
-//     }
-//
-//     // Personal or Private Access Token
-//     {
-//         "private-token": "<token>"
-//     }
+//  <AuthInfo>
+//  
+//    <!--
+//        Select just one of the following below to specify your OAuth
+//        token, private or personal token, or HTTP basic authentication.
+//    -->
+//  
+//    <!--
+//        <oauth-token></private-token>
+//    -->
+//  
+//    <!--
+//        <private-token></private-token>
+//    -->
+//  
+//    <!--
+//        <username></username>
+//        <password></password>
+//    -->
+//  
+//  </AuthInfo>
 
 package internal
 
 import (
 	"errors"
-	"encoding/json"
+	"encoding/xml"
 	"io"
 	"os"
 	"strings"
@@ -34,7 +40,7 @@ import (
 ////////////////////////////////////////////////////////////////////////
 
 var (
-	ErrAuthInfoInvalidJSON = errors.New("invalid JSON")
+	ErrAuthInfoInvalidXML = errors.New("invalid XML")
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -59,8 +65,8 @@ type AuthInfo interface {
 
 // BasicAuthInfo holds username and password used for HTTP basic authentication.
 type BasicAuthInfo struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `xml:"username"`
+	Password string `xml:"password"`
 }
 
 // NewBasicAuthInfo creates a new set of authentication information
@@ -72,22 +78,22 @@ func NewBasicAuthInfo(username, password string) BasicAuthInfo {
 	}
 }
 
-// NewBasicAuthInfoFromJSON creates a new set of authentication
-// information for HTTP basic authentication from the JSON accessible
-// through the io.Reader.  The format of the JSON is as follows:
+// NewBasicAuthInfoFromXML creates a new set of authentication
+// information for HTTP basic authentication from the XML accessible
+// through the io.Reader.  The format of the XML is as follows:
 //
-//  {
-//      "username": "<username>",
-//      "password": "password"
-//  }
-func NewBasicAuthInfoFromJSON(r io.Reader) (BasicAuthInfo, error) {
+//  <AuthInfo>
+//      <username></username>
+//      <password></password>
+//  </AuthInfo>
+func NewBasicAuthInfoFromXML(r io.Reader) (BasicAuthInfo, error) {
 	result := BasicAuthInfo{}
-	err := json.NewDecoder(r).Decode(&result)
+	err := xml.NewDecoder(r).Decode(&result)
 	if err != nil {
 		return BasicAuthInfo{}, err
 	}
 	if (len(result.Username) == 0) || (len(result.Password) == 0) {
-		return BasicAuthInfo{}, ErrAuthInfoInvalidJSON
+		return BasicAuthInfo{}, ErrAuthInfoInvalidXML
 	}
 	return result, nil
 }
@@ -109,7 +115,7 @@ func (authInfo *BasicAuthInfo) CreateGitlabClient(options ...gitlab.ClientOption
 
 // OAuthToken holds an OAuth access token.
 type OAuthToken struct {
-	Token string `json:"oauth-token"`
+	Token string `xml:"oauth-token"`
 }
 
 // NewOAuthToken creates a new set of authentication information for
@@ -120,21 +126,21 @@ func NewOAuthToken(token string) OAuthToken {
 	}
 }
 
-// NewOAuthTokenFromJSON creates a new set of authentication
-// information for OAuth authentication from the JSON accessible
-// through the io.Reader.  The format of the JSON is as follows:
+// NewOAuthTokenFromXML creates a new set of authentication
+// information for OAuth authentication from the XML accessible
+// through the io.Reader.  The format of the XML is as follows:
 //
-//  {
-//      "oauth-token": "<token>"
-//  }
-func NewOAuthTokenFromJSON(r io.Reader) (OAuthToken, error) {
+//  <AuthInfo>
+//      <oauth-token></oauth-token>
+//  </AuthInfo>
+func NewOAuthTokenFromXML(r io.Reader) (OAuthToken, error) {
 	result := OAuthToken{}
-	err := json.NewDecoder(r).Decode(&result)
+	err := xml.NewDecoder(r).Decode(&result)
 	if err != nil {
 		return OAuthToken{}, err
 	}
 	if len(result.Token) == 0 {
-		return OAuthToken{}, ErrAuthInfoInvalidJSON
+		return OAuthToken{}, ErrAuthInfoInvalidXML
 	}
 	return result, nil
 }
@@ -153,7 +159,7 @@ func (token *OAuthToken) CreateGitlabClient(options ...gitlab.ClientOptionFunc) 
 
 // PrivateToken holds a private or personal access token.
 type PrivateToken struct {
-	Token string `json:"private-token"`
+	Token string `xml:"private-token"`
 }
 
 // NewPrivateToken creates a new set of authentication information for
@@ -164,22 +170,22 @@ func NewPrivateToken(token string) PrivateToken {
 	}
 }
 
-// NewPrivateTokenFromJSON creates a new set of authentication
+// NewPrivateTokenFromXML creates a new set of authentication
 // information for private token or personal token authentication from
-// the JSON accessible through the io.Reader.  The format of the JSON
+// the XML accessible through the io.Reader.  The format of the XML
 // is as follows:
 //
-//  {
-//      "private-token": "<token>"
-//  }
-func NewPrivateTokenFromJSON(r io.Reader) (PrivateToken, error) {
+//  <AuthInfo>
+//      <private-token></private-token>
+//  <AuthInfo>
+func NewPrivateTokenFromXML(r io.Reader) (PrivateToken, error) {
 	result := PrivateToken{}
-	err := json.NewDecoder(r).Decode(&result)
+	err := xml.NewDecoder(r).Decode(&result)
 	if err != nil {
 		return PrivateToken{}, err
 	}
 	if len(result.Token) == 0 {
-		return PrivateToken{}, ErrAuthInfoInvalidJSON
+		return PrivateToken{}, ErrAuthInfoInvalidXML
 	}
 	return result, nil
 }
@@ -209,7 +215,7 @@ func LoadAuthInfo(fname string) (AuthInfo, error) {
 	}
 	defer f.Close()
 
-	// Read the JSON file into a buffer.
+	// Read the XML file into a buffer.
 	buf, err := io.ReadAll(f)
 	if err != nil {
 		return nil, err
@@ -217,21 +223,21 @@ func LoadAuthInfo(fname string) (AuthInfo, error) {
 
 	// Try to create a OAuthToken.
 	r = strings.NewReader(string(buf))
-	oauthToken, err := NewOAuthTokenFromJSON(r)
+	oauthToken, err := NewOAuthTokenFromXML(r)
 	if err == nil {
 		return &oauthToken, nil
 	}
 
 	// Try to create a PrivateToken.
 	r = strings.NewReader(string(buf))
-	privateToken, err := NewPrivateTokenFromJSON(r)
+	privateToken, err := NewPrivateTokenFromXML(r)
 	if err == nil {
 		return &privateToken, nil
 	}
 
 	// Try to create a BasicAuthInfo.
 	r = strings.NewReader(string(buf))
-	basicAuthInfo, err := NewBasicAuthInfoFromJSON(r)
+	basicAuthInfo, err := NewBasicAuthInfoFromXML(r)
 	if err == nil {
 		return &basicAuthInfo, nil
 	}
