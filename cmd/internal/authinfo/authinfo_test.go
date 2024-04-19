@@ -1,4 +1,4 @@
-package internal
+package authinfo
 
 import (
 	"strings"

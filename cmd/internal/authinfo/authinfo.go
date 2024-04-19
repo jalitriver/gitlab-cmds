@@ -23,7 +23,7 @@
 //  
 //  </AuthInfo>
 
-package internal
+package authinfo
 
 import (
 	"errors"
@@ -205,7 +205,7 @@ func (token *PrivateToken) CreateGitlabClient(options ...gitlab.ClientOptionFunc
 
 // LoadAuthInfo loads the authentication information from the file
 // returning the correct type of AuthInfo concrete type.
-func LoadAuthInfo(fname string) (AuthInfo, error) {
+func Load(fname string) (AuthInfo, error) {
 	var r io.Reader
 
 	// Open the file and schedule it to be closed.

@@ -8,13 +8,14 @@ import(
 	"path/filepath"
 	"encoding/xml"
 
-	"github.com/jalitriver/gitlab-cmds/cmd/internal"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
 	"github.com/xanzy/go-gitlab"
 )
 
 // Options holds the command-line options and values read from options.xml.
 type Options struct {
-	internal.CommonOptions
+	common_options.CommonOptions
 }
 
 // Initialize initializes this Options instance by parsing the
@@ -79,7 +80,7 @@ func main() {
 	flag.Parse()
 
 	// Load the authentication information from file.
-	authInfo, err := internal.LoadAuthInfo(opts.AuthFileName)
+	authInfo, err := authinfo.Load(opts.AuthFileName)
 	if err != nil {
 		log.Fatalf(
 			"LoadAuthInfo: Unable to load authentication information " +

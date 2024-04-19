@@ -1,7 +1,7 @@
 // Data structure used to collect options from config.xml and from the
 // command line.
 
-package internal
+package common_options
 
 import (
 	"flag"
