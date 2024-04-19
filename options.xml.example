@@ -1,0 +1,4 @@
+<Options>
+  <base-url>https://gitlab.com/</base-url>
+  <auth-file-name>auth.xml</auth-file-name>
+</Options>
