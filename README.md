@@ -1,23 +1,27 @@
 # gitlab-cmds
 
-[[_TOC]]
+GitLab Commands
 
 ## Getting Started
 
-1. Build the commands you want to use as follows:
+1. After cloning the repository, build the commands you want to use as follows:
 
-```
-    go build ./cmd/<command>
-```
+    ```
+        go build ./cmd/<command>
+    ```
 
 1. Set up your authentication information as follows:
 
-    1. Copy auth.xml.example to auth.xml.
+    1. cp auth.xml.example auth.xml
     
-    1. Change permissions on the file so only you have access to the
-       file.  On Unix do the following:
+    1. chmod 600 auth.xml
        
-       - chmod 600 auth.xml
-       
-    1. Edit auth.xml and uncomment the relevant authentication type
-       and add your authentication information.
+    1. Edit the auth.xml file and uncomment the relevant authentication type and add your authentication information.
+
+1. Set up your options file which is used to avoid having to enter the same command-line options whenever a command is run.
+
+    1. cp options.xml.example options.xml
+
+    1. If using a private Gitlab server, edit the options.xml file to point to it.
+
+    1. You should always have an options.xml file even if everything (except for the root tags) is commented out; otherwise, you will need to pass `--options ''` to each command invocation to specify no options.xml file.
