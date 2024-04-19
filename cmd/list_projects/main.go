@@ -36,6 +36,11 @@ func (opts *Options) Initialize() {
 	// been specified on the command line.
 	flag.Parse()
 
+	// If you have any command-line options that accumulate, you need
+	// reset them here; otherwise, those options will have duplicate
+	// values when flag.Parse() is called the second time as explained
+	// in the method-level comment (above).
+
 	// Try to open the options.xml file.
 	if opts.OptionsFileName != "" {
 		f, err := os.Open(opts.OptionsFileName)
