@@ -12,7 +12,7 @@ import(
 	"github.com/xanzy/go-gitlab"
 )
 
-// Options holds the command-line options.
+// Options holds the command-line options and values read from options.xml.
 type Options struct {
 	internal.CommonOptions
 }
@@ -22,11 +22,11 @@ type Options struct {
 // which might have been specified on the command-line. It then reads
 // the options.xml file to initialize this Options instance.  Because
 // command-line options take precedence over options in the
-// options.xml file, it is necessary for the call to call flag.Parse()
-// a second time.
+// options.xml file, it is necessary for the caller to call
+// flag.Parse() a second time.
 func (opts *Options) Initialize() {
 
-	// Inform the "flag" package where it should store the
+	// Inform the "flag" package where it should store the common
 	// command-line options.
 	opts.CommonOptions.Initialize()
 
@@ -36,21 +36,22 @@ func (opts *Options) Initialize() {
 	flag.Parse()
 
 	// Try to open the options.xml file.
-	f, err := os.Open(opts.OptionsFileName)
-	if err != nil {
-		// Squash the error.  The user is not required to have an
-		// options.xml file.
-		return
-	}
-	defer f.Close()
+	if opts.OptionsFileName != "" {
+		f, err := os.Open(opts.OptionsFileName)
+		if err != nil {
+			log.Fatalf("%v", err)
+			return
+		}		
+		defer f.Close()
 
-	// Try to read the options.xml file.
-	err = xml.NewDecoder(f).Decode(&opts)
-	if err != nil {
-		log.Fatalf(
-			"unable to read options from %q: %v",
-			opts.OptionsFileName,
-			err)
+		// Try to read the options.xml file.
+		err = xml.NewDecoder(f).Decode(&opts)
+		if err != nil {
+			log.Fatalf(
+				"unable to read options from %q: %v",
+				opts.OptionsFileName,
+				err)
+		}
 	}
 }
 

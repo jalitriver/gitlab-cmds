@@ -44,14 +44,14 @@ func (opts *CommonOptions) Initialize() {
 	flag.StringVar(
 		&opts.AuthFileName,
 		"auth",
-		"auth.xml",
+		opts.AuthFileName,
 		"name of XML file with authentication information")
 
 	// --base-url
 	flag.StringVar(
 		&opts.BaseURL,
 		"base-url",
-		"https://gitlab.com/",
+		opts.BaseURL,
 		"base URL for Gitlab REST endpoints which should not include " +
 			"the \"api/v4\" suffix")
 
@@ -59,7 +59,7 @@ func (opts *CommonOptions) Initialize() {
 	flag.StringVar(
 		&opts.OptionsFileName,
 		"options",
-		"options.xml",
+		opts.OptionsFileName,
 		"name of XML file with default options")
 }
 
