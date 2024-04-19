@@ -1,4 +1,17 @@
 <Options>
+
+  <!-- Base URL for connecting to Gitlab REST endpoints.  Do *not*
+       include the "api/v4" part.  Defaults to
+       "https://gitlab.com/". -->
+  <!--
   <base-url>https://gitlab.com/</base-url>
+  -->
+
+  <!-- Location of file that holds authorization information.  It goes
+       without saying permissions on this file should deny access to
+       anyone other than the user.  Defaults to "auth.xml". -->
+  <!--
   <auth-file-name>auth.xml</auth-file-name>
+  -->
+
 </Options>
