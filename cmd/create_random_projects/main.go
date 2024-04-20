@@ -120,8 +120,7 @@ func ParseOptions() (*Options, error) {
 // would without actually doing it.
 func CreateProject(
 	client *gitlab.Client,
-	parentGroupID int,
-	parentGroup string,
+	parentGroup *gitlab.Group,
 	projectBaseName string,
 	dryRun bool,
 ) error {
@@ -129,11 +128,11 @@ func CreateProject(
 	// Create UUID and use it as the suffix for the new project name.
 	suffix := uuid.NewString()
 	relativePath := projectBaseName + "-" + suffix
-	fullPath := parentGroup + "/" + relativePath
+	fullPath := parentGroup.FullPath + "/" + relativePath
 
 	// Set up options for creating the project.
 	opts := gitlab.CreateProjectOptions{
-		NamespaceID:          gitlab.Ptr(parentGroupID),
+		NamespaceID:          gitlab.Ptr(parentGroup.ID),
 		Path:                 gitlab.Ptr(relativePath),
 		Description:          gitlab.Ptr("Test Project"),
 		MergeRequestsEnabled: gitlab.Ptr(true),
@@ -168,8 +167,7 @@ func CreateProjects(
 	
 	// Get the parent group ID.
 	fmt.Printf("- Searching for ID for parent group %q ... ", parentGroup)
-	parentGroupID, err :=
-		gitlab_util.FindExactGroupID(client.Groups, parentGroup)
+	g, err := gitlab_util.FindExactGroup(client.Groups, parentGroup)
 	if err != nil {
 		return err
 	}
@@ -177,7 +175,7 @@ func CreateProjects(
 
 	// Create each project.
 	for i := uint64(0); i < projectCount; i++ {
-		err := CreateProject(client, parentGroupID, parentGroup, projectBaseName, dryRun)
+		err := CreateProject(client, g, projectBaseName, dryRun)
 		if err != nil {
 			return err
 		}

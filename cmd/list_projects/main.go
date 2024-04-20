@@ -92,48 +92,6 @@ func ParseOptions() (*Options, error) {
 	return opts, nil
 }
 
-// PrintProjects recursively prints the projects for the group.
-func PrintProjects(
-	client *gitlab.Client,
-	group string,
-) error {
-
-	// Find the group ID.
-	groupID, err := gitlab_util.FindExactGroupID(client.Groups, group)
-	if err != nil {
-		return err
-	}
-	
-	// Get the list of projects.
-	opts := gitlab.ListGroupProjectsOptions{}
-	opts.IncludeSubGroups = gitlab.Ptr(true)
-	opts.Page = 1
-
-	// Iterate over each page of groups.
-	for {
-		projects, resp, err :=
-			client.Groups.ListGroupProjects(groupID, &opts)
-		if err != nil {
-			return fmt.Errorf("PrintProjects: %w\n", err)
-		}
-
-		// Print each project.
-		for _, project := range projects {
-			fmt.Printf("%v: %v\n", project.ID, project.WebURL)
-		}
-
-		// Check if done.
-		if resp.NextPage == 0 {
-			break
-		}
-
-		// Move to the next page.
-		opts.Page = resp.NextPage
-	}
-
-	return nil
-}
-
 func main() {
 
 	var client *gitlab.Client
@@ -183,7 +141,13 @@ func main() {
 	}
 
 	// Print the projects.
-	err = PrintProjects(client, opts.Group)
+	err = gitlab_util.ForEachProjectInGroup(
+		client.Groups,
+		opts.Group,
+		func (g *gitlab.Group, p *gitlab.Project) bool {
+			fmt.Printf("%v: %v\n", p.ID, p.WebURL)
+			return true
+		})
 	if err != nil {
 		goto out
 	}
