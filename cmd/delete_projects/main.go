@@ -19,6 +19,10 @@ type Options struct {
 	// Common Options
 	common_options.CommonOptions
 
+	// DryRun should cause the command to print what it would do
+	// instead of actually doing it.
+	DryRun bool
+
 	// Expr is the regular expression that filters the projects.
 	Expr string
 
@@ -44,6 +48,7 @@ func (opts *Options) Initialize() error {
 
 	// Inform the "flag" package where it should store the
 	// command-specific options.
+	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
 	flag.StringVar(&opts.Expr, "expr", "", "regular expression which filters the projects")
 	flag.StringVar(&opts.Group, "group", "", "group for which projects will be listed")
 	flag.BoolVar(&opts.Recursive, "r", false, "whether to recursively list projects")
@@ -101,6 +106,24 @@ func ParseOptions() (*Options, error) {
 	return opts, nil
 }
 
+// DeleteProject deletes the project.  If dryRun is true, this
+// function only prints what it would without actually doing it.
+func DeleteProject(
+	s *gitlab.ProjectsService,
+	p *gitlab.Project,
+	dryRun bool,
+) error {
+	fmt.Printf("- Deleting project: %q ... ", p.PathWithNamespace)
+	if !dryRun {
+		_, err := s.DeleteProject(p.ID)
+		if err != nil {
+			return fmt.Errorf("DeleteProject: %w", err)
+		}
+	}
+	fmt.Printf("Done.\n")
+	return nil
+}
+
 func main() {
 
 	var client *gitlab.Client
@@ -149,15 +172,15 @@ func main() {
 		goto out
 	}
 
-	// Print the projects.
+	// Delete projects.
 	err = gitlab_util.ForEachProjectInGroup(
 		client.Groups,
 		opts.Group,
 		opts.Expr,
 		opts.Recursive,
 		func (g *gitlab.Group, p *gitlab.Project) (bool, error) {
-			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
-			return true, nil
+			err = DeleteProject(client.Projects, p, opts.DryRun)
+			return err == nil, err
 		})
 	if err != nil {
 		goto out

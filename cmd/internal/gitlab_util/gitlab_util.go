@@ -63,14 +63,16 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 // (recursively or not) calls the function f once for each project
 // whose full path name matches the regular expression.  Any empty
 // regular expression matches any string.  The function f must return
-// true to indicate that it wants to continue being called with the
-// remaining projects.
+// true and no error to indicate that it wants to continue being
+// called with the remaining projects.  If f returns an error, it will
+// be forwarded to the caller as the error return value for this
+// function.
 func ForEachProjectInGroup(
 	s *gitlab.GroupsService,
 	group string,
 	expr string,
 	recursive bool,
-	f func (group *gitlab.Group, project *gitlab.Project) bool,
+	f func (group *gitlab.Group, project *gitlab.Project) (bool, error),
 ) error {
 
 	// Find the group.
@@ -102,8 +104,14 @@ func ForEachProjectInGroup(
 		// Invoke the callback if the full path to the project matches
 		// the regular expression.
 		for _, p := range ps {
-			if r.MatchString(p.PathWithNamespace) && !f(g, p) {
-				goto out
+			if r.MatchString(p.PathWithNamespace) {
+				more, err := f(g, p)
+				if err != nil {
+					return err
+				}
+				if !more {
+					return nil
+				}
 			}
 		}
 
@@ -115,8 +123,6 @@ func ForEachProjectInGroup(
 		// Move to the next page.
 		opts.Page = resp.NextPage
 	}
-
-out:
 
 	return nil
 }
