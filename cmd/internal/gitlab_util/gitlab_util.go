@@ -157,6 +157,7 @@ func GetAllProjects(
 		return true, nil
 	}
 
+	// Collect all the projects.
 	err := ForEachProjectInGroup(s, group, expr, recursive, f)
 	if err != nil {
 		return nil, fmt.Errorf("GetAllProjects: %w", err)
