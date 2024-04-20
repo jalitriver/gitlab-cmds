@@ -169,7 +169,7 @@ func CreateProjects(
 	// Get the parent group ID.
 	fmt.Printf("- Searching for ID for parent group %q ... ", parentGroup)
 	parentGroupID, err :=
-		gitlab_util.FindUniqueGroupID(client.Groups, parentGroup)
+		gitlab_util.FindExactGroupID(client.Groups, parentGroup)
 	if err != nil {
 		return err
 	}

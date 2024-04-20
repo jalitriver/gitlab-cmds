@@ -17,34 +17,43 @@ func GroupFullPaths(groups []*gitlab.Group) []string {
 	return result
 }
 
-// FindUniqueGroupID determines if the group specified by the search
-// is unique.  If so, it returns the group ID; otherwise, it returns
-// an error.
-func FindUniqueGroupID(s *gitlab.GroupsService, group string) (int, error) {
+// FindExactGroupID returns the ID of the group that exactly matches
+// the search string.
+func FindExactGroupID(s *gitlab.GroupsService, group string) (int, error) {
 
 	// Set the group search string.
-	grpopts := gitlab.ListGroupsOptions{
-		Search: gitlab.Ptr(group),
+	opts := gitlab.ListGroupsOptions{}
+	opts.Page = 1
+	opts.Search = gitlab.Ptr(group)
+
+	// Iterate over each page of groups.
+	for {
+
+		// Get a page of matching groups.
+		gs, resp, err := s.ListGroups(&opts)
+		if err != nil {
+			err = fmt.Errorf("FindExactGroupID: %w", err)
+			return 0, err
+		}
+
+		// Check each group for an exact match.
+		for _, g := range gs {
+			if g.FullPath == group {
+				return g.ID, nil
+			}
+		}
+
+		// Check if done.
+		if resp.NextPage == 0 {
+			break
+		}
+
+		// Move to the next page.
+		opts.Page = resp.NextPage
 	}
 
-	// Get at least one page of matching groups.
-	groups, _, err := s.ListGroups(&grpopts)
-	if err != nil {
-		err = fmt.Errorf("FindUniqueGroupID: %w", err)
-		return 0, err
-	}
-
-	// Make sure exactly one group was found.
-	if len(groups) == 0 {
-		fmt.Errorf("FindUniqueGroupID: could not find group: %v", group)
-		return 0, err
-	}
-	if len(groups) > 1 {
-		err := fmt.Errorf(
-			"FindUniqueGroupID: found multiple matching groups: %v",
-			GroupFullPaths(groups))
-		return 0, err
-	}
-
-	return groups[0].ID, nil
+	// Could not find a matching group.
+	err := fmt.Errorf(
+		"FindExactGroupID: could not find exact match for group: %q", group)
+	return 0, err
 }
