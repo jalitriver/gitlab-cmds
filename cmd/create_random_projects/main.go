@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -77,22 +78,12 @@ func (opts *Options) Initialize() error {
 	return nil
 }
 
-// GroupFullPaths returns just the full paths for the groups.
-func GroupFullPaths(groups []*gitlab.Group) []string {
-	result := make([]string, 0, len(groups))
-	for _, group := range groups {
-		result = append(result, group.FullPath)
-	}
-	return result
-}
-
 func main() {
 
 	var err error
 	var authInfo authinfo.AuthInfo
 	var client *gitlab.Client
-	var groups []*gitlab.Group
-	var grpopts gitlab.ListGroupsOptions
+	var grpid int
 
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -156,25 +147,13 @@ func main() {
 		goto out
 	}
 
-	// Search for the parent group ID.
+	// Get the parent group ID.
 	fmt.Printf("- Searching for ID for parent group %q ... ", opts.ParentGroup)
-	grpopts = gitlab.ListGroupsOptions{
-		Search: gitlab.Ptr(opts.ParentGroup),
-	}
-	groups, _, err = client.Groups.ListGroups(&grpopts)
+	grpid, err = gitlab_util.FindUniqueGroupID(client.Groups, opts.ParentGroup)
 	if err != nil {
-		err = fmt.Errorf("ListGroups: %w", err)
 		goto out
 	}
 	fmt.Printf("Done.\n")
-	if len(groups) == 0 {
-		err = fmt.Errorf("could not find group: %v", opts.ParentGroup)
-		goto out
-	}
-	if len(groups) > 1 {
-		err = fmt.Errorf("found multiple matching groups: %v", GroupFullPaths(groups))
-		goto out
-	}
 
 	// Create the projects.
 	for i := uint64(0); i < opts.ProjectCount; i++ {
@@ -186,7 +165,7 @@ func main() {
 
 		// Set up options for creating the project.
 		projopts := gitlab.CreateProjectOptions{
-			NamespaceID:          gitlab.Ptr(groups[0].ID),
+			NamespaceID:          gitlab.Ptr(grpid),
 			Path:                 gitlab.Ptr(projname),
 			Description:          gitlab.Ptr("Test Project"),
 			MergeRequestsEnabled: gitlab.Ptr(true),
