@@ -1,12 +1,11 @@
 package main
 
 import(
+	"encoding/xml"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
-	"encoding/xml"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
@@ -74,9 +73,21 @@ func (opts *Options) Initialize() error {
 	return nil
 }
 
+
+// GroupFullPaths returns just the full paths for the groups.
+func GroupFullPaths(groups []*gitlab.Group) []string {
+	result := make([]string, 0, len(groups))
+	for _, group := range groups {
+		result = append(result, group.FullPath)
+	}
+	return result
+}
+
 func main() {
 
 	var err error
+	var authInfo authinfo.AuthInfo
+	var client *gitlab.Client
 
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -117,27 +128,83 @@ func main() {
 		os.Exit(1)
 	}
 
+	//
+	// Errors below here do not need to print the usage message.
+	//
+
 	// Load the authentication information from file.
-	authInfo, err := authinfo.Load(opts.AuthFileName)
+	authInfo, err = authinfo.Load(opts.AuthFileName)
 	if err != nil {
-		log.Fatalf(
+		err = fmt.Errorf(
 			"LoadAuthInfo: Unable to load authentication information " +
-			"from file %v: %v", opts.AuthFileName, err)
+				"from file %v: %w\n", opts.AuthFileName, err)
+		goto out
 	}
 
 	// Create the Gitlab client based on the authentication
 	// information provided by the user.
-	client, err := authInfo.CreateGitlabClient(
+	client, err = authInfo.CreateGitlabClient(
 		gitlab.WithBaseURL(opts.BaseURL))
 	if err != nil {
-		log.Fatalf("CreateGitlabClient: %v\n", err)
+		err = fmt.Errorf("CreateGitlabClient: %w\n", err)
+		goto out
 	}
-
-	// DELETE ME!!!
-	client = client
 
 	// Create the projects.
 	for i := uint64(0); i < opts.ProjectCount; i++ {
-		fmt.Printf("uuid=%v\n", uuid.NewString())
+		var groups []*gitlab.Group
+
+		// Search for the parent group ID.
+		fmt.Printf("Searching for parent group ID ... ")
+		grpopts := gitlab.ListGroupsOptions{
+			Search: gitlab.Ptr(opts.ParentGroup),
+		}
+		groups, _, err = client.Groups.ListGroups(&grpopts)
+		if err != nil {
+			err = fmt.Errorf("ListGroups: %w", err)
+			goto out
+		}
+		fmt.Printf("Done.\n")
+		if len(groups) == 0 {
+			err = fmt.Errorf("could not find group: %v", opts.ParentGroup)
+			goto out
+		}
+		if len(groups) > 1 {
+			err = fmt.Errorf("found multiple matching groups: %v", GroupFullPaths(groups))
+			goto out
+		}
+
+		// Create UUID and use it as the suffix for the new project name.
+		suffix := uuid.NewString()
+		projname := opts.ProjectBaseName + "-" + suffix
+		projpath := opts.ParentGroup + "/" + projname
+
+		// Set up options for creating the project.
+		projopts := gitlab.CreateProjectOptions{
+			NamespaceID:          gitlab.Ptr(groups[0].ID),
+			Path:                 gitlab.Ptr(projname),
+			Description:          gitlab.Ptr("Test Project"),
+			MergeRequestsEnabled: gitlab.Ptr(true),
+			SnippetsEnabled:      gitlab.Ptr(true),
+			Visibility:           gitlab.Ptr(gitlab.PublicVisibility),
+		}
+
+		// Create the project.
+		fmt.Printf("- Creating project: %q ... ", projpath)
+		if !opts.DryRun {
+			_, _, err = client.Projects.CreateProject(&projopts)
+			if err != nil {
+				err = fmt.Errorf("CreateProject: %w", err)
+				goto out
+			}
+		}
+		fmt.Printf("Done.\n")
+	}
+
+out:
+
+	if err != nil{
+		fmt.Fprintf(os.Stderr, "\n*** Error: %v\n\n", err)
+		os.Exit(1)
 	}
 }
