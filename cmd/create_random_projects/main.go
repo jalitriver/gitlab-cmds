@@ -51,7 +51,7 @@ func (opts *Options) Initialize() error {
 	opts.CommonOptions.Initialize()
 
 	// Inform the "flag" package where it should store the
-	// command-line options specific to this command.
+	// command-specific options.
 	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
 	flag.StringVar(&opts.ParentGroup, "parent-group", "", "parent group for new projects")
 	flag.StringVar(&opts.ProjectBaseName, "project-base-name", "", "base name for new projects")
