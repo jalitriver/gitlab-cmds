@@ -20,7 +20,8 @@ GitLab Commands
     1. Edit the auth.xml file and uncomment the relevant
        authentication type and add your authentication information.
 
-1. Set up your options file which is used to avoid having to enter the same command-line options whenever a command is run.
+1. Set up your options file which is used to avoid having to enter the
+   same command-line options whenever a command is run.
 
     1. cp options.xml.example options.xml
 
