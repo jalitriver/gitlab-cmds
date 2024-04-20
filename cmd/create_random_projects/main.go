@@ -78,12 +78,84 @@ func (opts *Options) Initialize() error {
 	return nil
 }
 
+// CreateProject creates a projects in the parent group specified by
+// parentGroupID.  The parentGroup string is only use for logging.
+// The name of each project is a combination of the project base name
+// and a UUID.  If dryRun is true, this function only prints what it
+// would without actually doing it.
+func CreateProject(
+	client *gitlab.Client,
+	parentGroupID int,
+	parentGroup string,
+	projectBaseName string,
+	dryRun bool,
+) error {
+
+	// Create UUID and use it as the suffix for the new project name.
+	suffix := uuid.NewString()
+	relativePath := projectBaseName + "-" + suffix
+	fullPath := parentGroup + "/" + relativePath
+
+	// Set up options for creating the project.
+	opts := gitlab.CreateProjectOptions{
+		NamespaceID:          gitlab.Ptr(parentGroupID),
+		Path:                 gitlab.Ptr(relativePath),
+		Description:          gitlab.Ptr("Test Project"),
+		MergeRequestsEnabled: gitlab.Ptr(true),
+		SnippetsEnabled:      gitlab.Ptr(true),
+		Visibility:           gitlab.Ptr(gitlab.PublicVisibility),
+	}
+
+	// Create the project.
+	fmt.Printf("- Creating project: %q ... ", fullPath)
+	if !dryRun {
+		_, _, err := client.Projects.CreateProject(&opts)
+		if err != nil {
+			return fmt.Errorf("CreateProject: %w", err)			
+		}
+	}
+	fmt.Printf("Done.\n")
+
+	return nil
+}
+
+// CreateProjects creates the specified number of projects in the
+// parent group.  The name of each project is a combination of the
+// project base name and a UUID.  If dryRun is true, this function
+// only prints what it would without actually doing it.
+func CreateProjects(
+	client *gitlab.Client,
+	parentGroup string,
+	projectBaseName string,
+	projectCount uint64,
+	dryRun bool,
+) error {
+	
+	// Get the parent group ID.
+	fmt.Printf("- Searching for ID for parent group %q ... ", parentGroup)
+	parentGroupID, err :=
+		gitlab_util.FindUniqueGroupID(client.Groups, parentGroup)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Done.\n")
+
+	// Create each project.
+	for i := uint64(0); i < projectCount; i++ {
+		err := CreateProject(client, parentGroupID, parentGroup, projectBaseName, dryRun)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func main() {
 
 	var err error
 	var authInfo authinfo.AuthInfo
 	var client *gitlab.Client
-	var grpid int
 
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -147,42 +219,15 @@ func main() {
 		goto out
 	}
 
-	// Get the parent group ID.
-	fmt.Printf("- Searching for ID for parent group %q ... ", opts.ParentGroup)
-	grpid, err = gitlab_util.FindUniqueGroupID(client.Groups, opts.ParentGroup)
+	// Create projects.
+	err = CreateProjects(
+		client,
+		opts.ParentGroup,
+		opts.ProjectBaseName,
+		opts.ProjectCount,
+		opts.DryRun)
 	if err != nil {
 		goto out
-	}
-	fmt.Printf("Done.\n")
-
-	// Create the projects.
-	for i := uint64(0); i < opts.ProjectCount; i++ {
-
-		// Create UUID and use it as the suffix for the new project name.
-		suffix := uuid.NewString()
-		projname := opts.ProjectBaseName + "-" + suffix
-		projpath := opts.ParentGroup + "/" + projname
-
-		// Set up options for creating the project.
-		projopts := gitlab.CreateProjectOptions{
-			NamespaceID:          gitlab.Ptr(grpid),
-			Path:                 gitlab.Ptr(projname),
-			Description:          gitlab.Ptr("Test Project"),
-			MergeRequestsEnabled: gitlab.Ptr(true),
-			SnippetsEnabled:      gitlab.Ptr(true),
-			Visibility:           gitlab.Ptr(gitlab.PublicVisibility),
-		}
-
-		// Create the project.
-		fmt.Printf("- Creating project: %q ... ", projpath)
-		if !opts.DryRun {
-			_, _, err = client.Projects.CreateProject(&projopts)
-			if err != nil {
-				err = fmt.Errorf("CreateProject: %w", err)
-				goto out
-			}
-		}
-		fmt.Printf("Done.\n")
 	}
 
 out:
