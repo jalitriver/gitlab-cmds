@@ -61,12 +61,13 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 
 // ForEachProjectInGroup iterates over the projects in a group and
 // (recursively or not) calls the function f once for each project
-// whose full path name matches the regular expression.  Any empty
+// whose full path name matches the regular expression.  An empty
 // regular expression matches any string.  The function f must return
 // true and no error to indicate that it wants to continue being
 // called with the remaining projects.  If f returns an error, it will
 // be forwarded to the caller as the error return value for this
-// function.
+// function.  Prefer this function over GetAllProjects() to avoid the
+// long delay to the user while waiting to collect all the projects.
 func ForEachProjectInGroup(
 	s *gitlab.GroupsService,
 	group string,
@@ -91,6 +92,7 @@ func ForEachProjectInGroup(
 	opts := gitlab.ListGroupProjectsOptions{}
 	opts.IncludeSubGroups = gitlab.Ptr(recursive)
 	opts.Page = 1
+	///opts.PerPage = 100
 
 	// Iterate over each page of groups.
 	for {
@@ -125,4 +127,40 @@ func ForEachProjectInGroup(
 	}
 
 	return nil
+}
+
+// GetAllProjects returns all the projects in a group (recursively or
+// not) for each project whose full path name matches the regular
+// expression.  An empty regular expression matches any string.
+// Prefer ForEachProjectInGroup() over this function to avoid the long
+// delay while waiting to collect all the projects.  The main reason
+// to use this function is when deleting projects because Gitlab's
+// paging gets confused because Gitlab's paging is relative to when
+// you make the request for the next page, not when you made the
+// request for the first page, and deleting projects necessarily
+// changes the page on which some remaining projects appear.  This
+// function is better to use when deleting projects because it
+// collects all the projects up front allowing the caller to delete
+// them with impunity because there will be no next page to get.
+func GetAllProjects(
+	s *gitlab.GroupsService,
+	group string,
+	expr string,
+	recursive bool,
+) ([]*gitlab.Project, error) {
+
+	var result []*gitlab.Project
+
+	// Callback function used to collect all of the projects.
+	f := func(group *gitlab.Group, project *gitlab.Project) (bool, error) {
+		result = append(result, project)
+		return true, nil
+	}
+
+	err := ForEachProjectInGroup(s, group, expr, recursive, f)
+	if err != nil {
+		return nil, fmt.Errorf("GetAllProjects: %w", err)
+	}
+	
+	return result, nil
 }
