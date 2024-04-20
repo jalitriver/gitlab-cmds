@@ -17,10 +17,6 @@ type CommonOptions struct {
 	// BaseURL is the base URL for connecting to Gitlab REST endpoints.
 	BaseURL string `xml:"base-url"`
 
-	// DryRun should cause the command to print what it would do
-	// instead of actually doing it.
-	DryRun bool `xml:"-"`
-
 	// OptionsFileName is an alternative file name for options.xml.
 	// Note that the user can only change this option on the command
 	// line, not in the options.xml file (because it leads to circular
@@ -58,13 +54,6 @@ func (opts *CommonOptions) Initialize() {
 		opts.BaseURL,
 		"base URL for Gitlab REST endpoints which should not include " +
 			"the \"api/v4\" suffix")
-
-	// --base-url
-	flag.BoolVar(
-		&opts.DryRun,
-		"dry-run",
-		opts.DryRun,
-		"print what it would do instead of actually doing it")
 
 	// --options
 	flag.StringVar(

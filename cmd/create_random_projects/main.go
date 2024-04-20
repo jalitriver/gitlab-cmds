@@ -19,6 +19,10 @@ type Options struct {
 	// Common Options
 	common_options.CommonOptions
 
+	// DryRun should cause the command to print what it would do
+	// instead of actually doing it.
+	DryRun bool `xml:"-"`
+
 	// ParentGroup is the group where projects will be created.  The
 	// parent group must already exist.
 	ParentGroup string
@@ -88,7 +92,9 @@ func main() {
 	var err error
 	var authInfo authinfo.AuthInfo
 	var client *gitlab.Client
-
+	var groups []*gitlab.Group
+	var grpopts gitlab.ListGroupsOptions
+	
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 
@@ -107,6 +113,7 @@ func main() {
 
 	// Parse command-line arguments.
 	opts := new(Options)
+	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
 	flag.StringVar(&opts.ParentGroup, "parent-group", "", "parent group for new projects")
 	flag.StringVar(&opts.ProjectBaseName, "project-base-name", "", "base name for new projects")
 	flag.Uint64Var(&opts.ProjectCount, "project-count", 0, "number of new projects to create")
@@ -150,29 +157,28 @@ func main() {
 		goto out
 	}
 
+	// Search for the parent group ID.
+	fmt.Printf("- Searching for ID for parent group %q ... ", opts.ParentGroup)
+	grpopts = gitlab.ListGroupsOptions{
+		Search: gitlab.Ptr(opts.ParentGroup),
+	}
+	groups, _, err = client.Groups.ListGroups(&grpopts)
+	if err != nil {
+		err = fmt.Errorf("ListGroups: %w", err)
+		goto out
+	}
+	fmt.Printf("Done.\n")
+	if len(groups) == 0 {
+		err = fmt.Errorf("could not find group: %v", opts.ParentGroup)
+		goto out
+	}
+	if len(groups) > 1 {
+		err = fmt.Errorf("found multiple matching groups: %v", GroupFullPaths(groups))
+		goto out
+	}
+
 	// Create the projects.
 	for i := uint64(0); i < opts.ProjectCount; i++ {
-		var groups []*gitlab.Group
-
-		// Search for the parent group ID.
-		fmt.Printf("Searching for parent group ID ... ")
-		grpopts := gitlab.ListGroupsOptions{
-			Search: gitlab.Ptr(opts.ParentGroup),
-		}
-		groups, _, err = client.Groups.ListGroups(&grpopts)
-		if err != nil {
-			err = fmt.Errorf("ListGroups: %w", err)
-			goto out
-		}
-		fmt.Printf("Done.\n")
-		if len(groups) == 0 {
-			err = fmt.Errorf("could not find group: %v", opts.ParentGroup)
-			goto out
-		}
-		if len(groups) > 1 {
-			err = fmt.Errorf("found multiple matching groups: %v", GroupFullPaths(groups))
-			goto out
-		}
 
 		// Create UUID and use it as the suffix for the new project name.
 		suffix := uuid.NewString()
