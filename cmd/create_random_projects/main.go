@@ -22,7 +22,7 @@ type Options struct {
 
 	// DryRun should cause the command to print what it would do
 	// instead of actually doing it.
-	DryRun bool `xml:"-"`
+	DryRun bool
 
 	// ParentGroup is the group where projects will be created.  The
 	// parent group must already exist.
