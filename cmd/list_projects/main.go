@@ -1,12 +1,12 @@
 package main
 
-import(
+import (
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"encoding/xml"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
@@ -15,6 +15,8 @@ import(
 
 // Options holds the command-line options and values read from options.xml.
 type Options struct {
+
+	// Common Options
 	common_options.CommonOptions
 }
 
@@ -46,7 +48,7 @@ func (opts *Options) Initialize() error {
 		f, err := os.Open(opts.OptionsFileName)
 		if err != nil {
 			return err
-		}		
+		}
 		defer f.Close()
 
 		// Try to read the options.xml file.
@@ -96,8 +98,8 @@ func main() {
 	authInfo, err := authinfo.Load(opts.AuthFileName)
 	if err != nil {
 		log.Fatalf(
-			"LoadAuthInfo: Unable to load authentication information " +
-			"from file %v: %v", opts.AuthFileName, err)
+			"LoadAuthInfo: Unable to load authentication information "+
+				"from file %v: %v", opts.AuthFileName, err)
 	}
 
 	// Create the Gitlab client based on the authentication

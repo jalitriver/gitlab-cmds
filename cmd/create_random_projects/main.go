@@ -1,15 +1,15 @@
 package main
 
-import(
+import (
 	"encoding/xml"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
-	"github.com/google/uuid"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -64,7 +64,7 @@ func (opts *Options) Initialize() error {
 		f, err := os.Open(opts.OptionsFileName)
 		if err != nil {
 			return err
-		}		
+		}
 		defer f.Close()
 
 		// Try to read the options.xml file.
@@ -76,7 +76,6 @@ func (opts *Options) Initialize() error {
 
 	return nil
 }
-
 
 // GroupFullPaths returns just the full paths for the groups.
 func GroupFullPaths(groups []*gitlab.Group) []string {
@@ -94,7 +93,7 @@ func main() {
 	var client *gitlab.Client
 	var groups []*gitlab.Group
 	var grpopts gitlab.ListGroupsOptions
-	
+
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 
@@ -143,7 +142,7 @@ func main() {
 	authInfo, err = authinfo.Load(opts.AuthFileName)
 	if err != nil {
 		err = fmt.Errorf(
-			"LoadAuthInfo: Unable to load authentication information " +
+			"LoadAuthInfo: Unable to load authentication information "+
 				"from file %v: %w\n", opts.AuthFileName, err)
 		goto out
 	}
@@ -209,7 +208,7 @@ func main() {
 
 out:
 
-	if err != nil{
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "\n*** Error: %v\n\n", err)
 		os.Exit(1)
 	}

@@ -2,32 +2,32 @@
 // file.  The file should have one of the following formats:
 //
 //  <AuthInfo>
-//  
+//
 //    <!--
 //        Select just one of the following below to specify your OAuth
 //        token, private or personal token, or HTTP basic authentication.
 //    -->
-//  
+//
 //    <!--
 //        <oauth-token></private-token>
 //    -->
-//  
+//
 //    <!--
 //        <private-token></private-token>
 //    -->
-//  
+//
 //    <!--
 //        <username></username>
 //        <password></password>
 //    -->
-//  
+//
 //  </AuthInfo>
 
 package authinfo
 
 import (
-	"errors"
 	"encoding/xml"
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -82,10 +82,10 @@ func NewBasicAuthInfo(username, password string) BasicAuthInfo {
 // information for HTTP basic authentication from the XML accessible
 // through the io.Reader.  The format of the XML is as follows:
 //
-//  <AuthInfo>
-//      <username></username>
-//      <password></password>
-//  </AuthInfo>
+//	<AuthInfo>
+//	    <username></username>
+//	    <password></password>
+//	</AuthInfo>
 func NewBasicAuthInfoFromXML(r io.Reader) (BasicAuthInfo, error) {
 	result := BasicAuthInfo{}
 	err := xml.NewDecoder(r).Decode(&result)
@@ -130,9 +130,9 @@ func NewOAuthToken(token string) OAuthToken {
 // information for OAuth authentication from the XML accessible
 // through the io.Reader.  The format of the XML is as follows:
 //
-//  <AuthInfo>
-//      <oauth-token></oauth-token>
-//  </AuthInfo>
+//	<AuthInfo>
+//	    <oauth-token></oauth-token>
+//	</AuthInfo>
 func NewOAuthTokenFromXML(r io.Reader) (OAuthToken, error) {
 	result := OAuthToken{}
 	err := xml.NewDecoder(r).Decode(&result)
@@ -175,9 +175,9 @@ func NewPrivateToken(token string) PrivateToken {
 // the XML accessible through the io.Reader.  The format of the XML
 // is as follows:
 //
-//  <AuthInfo>
-//      <private-token></private-token>
-//  <AuthInfo>
+//	<AuthInfo>
+//	    <private-token></private-token>
+//	<AuthInfo>
 func NewPrivateTokenFromXML(r io.Reader) (PrivateToken, error) {
 	result := PrivateToken{}
 	err := xml.NewDecoder(r).Decode(&result)

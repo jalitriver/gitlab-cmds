@@ -10,10 +10,10 @@ import (
 // CommonOptions holds the command-line options and options in the
 // options.xml that are need by most of our commands.
 type CommonOptions struct {
-	
+
 	// AuthFileName is an alternative file name for auth.xml.
 	AuthFileName string `xml:"auth-file-name"`
-	
+
 	// BaseURL is the base URL for connecting to Gitlab REST endpoints.
 	BaseURL string `xml:"base-url"`
 
@@ -52,7 +52,7 @@ func (opts *CommonOptions) Initialize() {
 		&opts.BaseURL,
 		"base-url",
 		opts.BaseURL,
-		"base URL for Gitlab REST endpoints which should not include " +
+		"base URL for Gitlab REST endpoints which should not include "+
 			"the \"api/v4\" suffix")
 
 	// --options
@@ -62,4 +62,3 @@ func (opts *CommonOptions) Initialize() {
 		opts.OptionsFileName,
 		"name of XML file with default options")
 }
-
