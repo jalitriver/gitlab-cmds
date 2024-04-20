@@ -64,6 +64,7 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 func ForEachProjectInGroup(
 	s *gitlab.GroupsService,
 	group string,
+	recursive bool,
 	f func (group *gitlab.Group, project *gitlab.Project) bool,
 ) error {
 
@@ -75,7 +76,7 @@ func ForEachProjectInGroup(
 	
 	// Set up the options for ListGroupProjects().
 	opts := gitlab.ListGroupProjectsOptions{}
-	opts.IncludeSubGroups = gitlab.Ptr(true)
+	opts.IncludeSubGroups = gitlab.Ptr(recursive)
 	opts.Page = 1
 
 	// Iterate over each page of groups.

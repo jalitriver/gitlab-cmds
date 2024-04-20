@@ -19,8 +19,11 @@ type Options struct {
 	// Common Options
 	common_options.CommonOptions
 
-	// Group for which projects will be recursively listed.
+	// Group for which projects will be listed.
 	Group string
+
+	// Recursive controls whether the projects are listed recursively.
+	Recursive bool
 }
 
 // Initialize initializes this Options instance by parsing the
@@ -38,7 +41,9 @@ func (opts *Options) Initialize() error {
 
 	// Inform the "flag" package where it should store the
 	// command-specific options.
-	flag.StringVar(&opts.Group, "group", "", "group to start recursively listing projects")
+	flag.StringVar(&opts.Group, "group", "", "group for which projects will be listed")
+	flag.BoolVar(&opts.Recursive, "r", false, "whether to recursively list projects")
+	flag.BoolVar(&opts.Recursive, "recursive", false, "whether to recursively list projects")
 
 	// Parse the command-line options primarily looking for an
 	// alternative location for the options.xml file which might have
@@ -144,6 +149,7 @@ func main() {
 	err = gitlab_util.ForEachProjectInGroup(
 		client.Groups,
 		opts.Group,
+		opts.Recursive,
 		func (g *gitlab.Group, p *gitlab.Project) bool {
 			fmt.Printf("%v: %v\n", p.ID, p.WebURL)
 			return true
