@@ -2,7 +2,10 @@ module github.com/jalitriver/gitlab-cmds
 
 go 1.22.2
 
-require github.com/xanzy/go-gitlab v0.102.0
+require (
+	github.com/google/uuid v1.6.0
+	github.com/xanzy/go-gitlab v0.102.0
+)
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
