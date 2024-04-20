@@ -50,6 +50,13 @@ func (opts *Options) Initialize() error {
 	// command-line options.
 	opts.CommonOptions.Initialize()
 
+	// Inform the "flag" package where it should store the
+	// command-line options specific to this command.
+	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
+	flag.StringVar(&opts.ParentGroup, "parent-group", "", "parent group for new projects")
+	flag.StringVar(&opts.ProjectBaseName, "project-base-name", "", "base name for new projects")
+	flag.Uint64Var(&opts.ProjectCount, "project-count", 0, "number of new projects to create")
+
 	// Parse the command-line options primarily looking for an
 	// alternative location for the options.xml file which might have
 	// been specified on the command line.
@@ -76,6 +83,34 @@ func (opts *Options) Initialize() error {
 	}
 
 	return nil
+}
+
+// ParseOptions uses the "flag" package to parse our command-line
+// options and return the result.
+func ParseOptions() (*Options, error) {
+
+	// Initialize a new Options instance including reading default
+	// options from the options.xml configuration file.
+	opts := new(Options)
+	err := opts.Initialize()
+	if err != nil {
+		return nil ,err
+	}
+
+	// Augment the options from the options.xml file with options from
+	// the command-line arguments.
+	flag.Parse()
+
+	// Validate the options.
+	if opts.ParentGroup == "" {
+		return nil, fmt.Errorf("invalid parent group: %q", opts.ParentGroup)
+	} else if opts.ProjectBaseName == "" {
+		return nil, fmt.Errorf("invalid project base name: %q", opts.ProjectBaseName)
+	} else if opts.ProjectCount == 0 {
+		return nil, fmt.Errorf("invalid project count: %v", opts.ProjectCount)
+	}
+
+	return opts, nil
 }
 
 // CreateProject creates a projects in the parent group specified by
@@ -153,9 +188,8 @@ func CreateProjects(
 
 func main() {
 
-	var err error
-	var authInfo authinfo.AuthInfo
 	var client *gitlab.Client
+	var authInfo authinfo.AuthInfo
 
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -174,32 +208,13 @@ func main() {
 	}
 
 	// Parse command-line arguments.
-	opts := new(Options)
-	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
-	flag.StringVar(&opts.ParentGroup, "parent-group", "", "parent group for new projects")
-	flag.StringVar(&opts.ProjectBaseName, "project-base-name", "", "base name for new projects")
-	flag.Uint64Var(&opts.ProjectCount, "project-count", 0, "number of new projects to create")
-	err = opts.Initialize()
-	if err == nil {
-		flag.Parse()
-		if opts.ParentGroup == "" {
-			err = fmt.Errorf("invalid parent group: %q", opts.ParentGroup)
-		} else if opts.ProjectBaseName == "" {
-			err = fmt.Errorf("invalid project base name: %q", opts.ProjectBaseName)
-		} else if opts.ProjectCount == 0 {
-			err = fmt.Errorf("invalid project count: %v", opts.ProjectCount)
-		}
-	}
+	opts, err := ParseOptions()
 	if err != nil {
 		out := flag.CommandLine.Output()
 		fmt.Fprintf(out, "%v\n", err)
 		flag.Usage()
 		os.Exit(1)
 	}
-
-	//
-	// Errors below here do not need to print the usage message.
-	//
 
 	// Load the authentication information from file.
 	authInfo, err = authinfo.Load(opts.AuthFileName)
