@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -94,8 +93,11 @@ func ParseOptions() (*Options, error) {
 
 func main() {
 
-	var err error
-
+	var client *gitlab.Client
+	var authInfo authinfo.AuthInfo
+	var listProjOpts gitlab.ListProjectsOptions
+	var projects []*gitlab.Project
+	
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 
@@ -122,30 +124,40 @@ func main() {
 	}
 
 	// Load the authentication information from file.
-	authInfo, err := authinfo.Load(opts.AuthFileName)
+	authInfo, err = authinfo.Load(opts.AuthFileName)
 	if err != nil {
-		log.Fatalf(
+		err = fmt.Errorf(
 			"LoadAuthInfo: Unable to load authentication information "+
-				"from file %v: %v", opts.AuthFileName, err)
+				"from file %v: %w\n", opts.AuthFileName, err)
+		goto out
 	}
 
 	// Create the Gitlab client based on the authentication
 	// information provided by the user.
-	client, err := authInfo.CreateGitlabClient(
+	client, err = authInfo.CreateGitlabClient(
 		gitlab.WithBaseURL(opts.BaseURL))
 	if err != nil {
-		log.Fatalf("CreateGitlabClient: %v\n", err)
+		err = fmt.Errorf("CreateGitlabClient: %w\n", err)
+		goto out
 	}
 
 	// Get the list of projects.
-	listProjOpts := gitlab.ListProjectsOptions{}
-	ps, _, err := client.Projects.ListProjects(&listProjOpts)
+	listProjOpts = gitlab.ListProjectsOptions{}
+	projects, _, err = client.Projects.ListProjects(&listProjOpts)
 	if err != nil {
-		log.Fatalf("ListProjects: %v\n", err)
+		err = fmt.Errorf("ListProjects: %w\n", err)
+		goto out
 	}
 
 	// Print each project.
-	for _, p := range ps {
-		fmt.Printf("%v: %v\n", p.ID, p.WebURL)
+	for _, project := range projects {
+		fmt.Printf("%v: %v\n", project.ID, project.WebURL)
+	}
+
+out:
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\n*** Error: %v\n\n", err)
+		os.Exit(1)
 	}
 }
