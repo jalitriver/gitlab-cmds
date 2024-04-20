@@ -25,7 +25,7 @@ type Options struct {
 // command-line options take precedence over options in the
 // options.xml file, it is necessary for the caller to call
 // flag.Parse() a second time.
-func (opts *Options) Initialize() {
+func (opts *Options) Initialize() error {
 
 	// Inform the "flag" package where it should store the common
 	// command-line options.
@@ -45,23 +45,23 @@ func (opts *Options) Initialize() {
 	if opts.OptionsFileName != "" {
 		f, err := os.Open(opts.OptionsFileName)
 		if err != nil {
-			log.Fatalf("%v", err)
-			return
+			return err
 		}		
 		defer f.Close()
 
 		// Try to read the options.xml file.
 		err = xml.NewDecoder(f).Decode(&opts)
 		if err != nil {
-			log.Fatalf(
-				"unable to read options from %q: %v",
-				opts.OptionsFileName,
-				err)
+			return fmt.Errorf("%v: %w", opts.OptionsFileName, err)
 		}
 	}
+
+	return nil
 }
 
 func main() {
+
+	var err error
 
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -81,8 +81,16 @@ func main() {
 
 	// Parse command-line arguments.
 	opts := new(Options)
-	opts.Initialize()
-	flag.Parse()
+	err = opts.Initialize()
+	if err == nil {
+		flag.Parse()
+	}
+	if err != nil {
+		out := flag.CommandLine.Output()
+		fmt.Fprintf(out, "%v\n", err)
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	// Load the authentication information from file.
 	authInfo, err := authinfo.Load(opts.AuthFileName)
