@@ -151,10 +151,7 @@ func main() {
 
 	// Print the projects.
 	err = gitlab_util.ForEachProjectInGroup(
-		client.Groups,
-		opts.Group,
-		opts.Expr,
-		opts.Recursive,
+		client.Groups, opts.Group, opts.Expr, opts.Recursive,
 		func (g *gitlab.Group, p *gitlab.Project) (bool, error) {
 			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
 			return true, nil
