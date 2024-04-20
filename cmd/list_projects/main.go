@@ -19,6 +19,9 @@ type Options struct {
 	// Common Options
 	common_options.CommonOptions
 
+	// Expr is the regular expression that filters the projects to print.
+	Expr string
+
 	// Group for which projects will be listed.
 	Group string
 
@@ -41,6 +44,7 @@ func (opts *Options) Initialize() error {
 
 	// Inform the "flag" package where it should store the
 	// command-specific options.
+	flag.StringVar(&opts.Expr, "expr", "", "regular expression which filters projects to print")
 	flag.StringVar(&opts.Group, "group", "", "group for which projects will be listed")
 	flag.BoolVar(&opts.Recursive, "r", false, "whether to recursively list projects")
 	flag.BoolVar(&opts.Recursive, "recursive", false, "whether to recursively list projects")
@@ -149,9 +153,10 @@ func main() {
 	err = gitlab_util.ForEachProjectInGroup(
 		client.Groups,
 		opts.Group,
+		opts.Expr,
 		opts.Recursive,
 		func (g *gitlab.Group, p *gitlab.Project) bool {
-			fmt.Printf("%v: %v\n", p.ID, p.WebURL)
+			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
 			return true
 		})
 	if err != nil {

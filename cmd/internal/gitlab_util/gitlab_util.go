@@ -4,6 +4,7 @@ package gitlab_util
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -58,12 +59,16 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 	return nil, err
 }
 
-// ForEachProjectInGroup calls the function f once for each project in
-// the group.  If the function f must return true to indicate that it
-// wants to continue being called with the remaining projects.
+// ForEachProjectInGroup iterates over the projects in a group and
+// (recursively or not) calls the function f once for each project
+// whose full path name matches the regular expression.  Any empty
+// regular expression matches any string.  The function f must return
+// true to indicate that it wants to continue being called with the
+// remaining projects.
 func ForEachProjectInGroup(
 	s *gitlab.GroupsService,
 	group string,
+	expr string,
 	recursive bool,
 	f func (group *gitlab.Group, project *gitlab.Project) bool,
 ) error {
@@ -71,7 +76,13 @@ func ForEachProjectInGroup(
 	// Find the group.
 	g, err := FindExactGroup(s, group)
 	if err != nil {
-		return err
+		return fmt.Errorf("ForEachProjectInGroup: %w", err)
+	}
+
+	// Compile the regexp.
+	r, err := regexp.Compile(expr)
+	if err != nil {
+		return fmt.Errorf("ForEachProjectInGroup: %w", err)
 	}
 	
 	// Set up the options for ListGroupProjects().
@@ -88,9 +99,10 @@ func ForEachProjectInGroup(
 			return fmt.Errorf("ForEachProjectInGroup: %w\n", err)
 		}
 
-		// Invoke the callback.
+		// Invoke the callback if the full path to the project matches
+		// the regular expression.
 		for _, p := range ps {
-			if !f(g, p) {
+			if r.MatchString(p.PathWithNamespace) && !f(g, p) {
 				goto out
 			}
 		}
