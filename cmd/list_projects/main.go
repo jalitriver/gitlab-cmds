@@ -18,6 +18,9 @@ type Options struct {
 
 	// Common Options
 	common_options.CommonOptions
+
+	// Group for which projects will be recursively listed.
+	Group string
 }
 
 // Initialize initializes this Options instance by parsing the
@@ -32,6 +35,10 @@ func (opts *Options) Initialize() error {
 	// Inform the "flag" package where it should store the common
 	// command-line options.
 	opts.CommonOptions.Initialize()
+
+	// Inform the "flag" package where it should store the
+	// command-specific options.
+	flag.StringVar(&opts.Group, "group", "", "group to start recursively listing projects")
 
 	// Parse the command-line options primarily looking for an
 	// alternative location for the options.xml file which might have
@@ -76,6 +83,11 @@ func ParseOptions() (*Options, error) {
 	// Augment the options from the options.xml file with options from
 	// the command-line arguments.
 	flag.Parse()
+
+	// Validate the options.
+	if opts.Group == "" {
+		return nil, fmt.Errorf("invalid group: %q", opts.Group)
+	}
 
 	return opts, nil
 }
