@@ -9,6 +9,7 @@ import (
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -91,12 +92,52 @@ func ParseOptions() (*Options, error) {
 	return opts, nil
 }
 
+// PrintProjects recursively prints the projects for the group.
+func PrintProjects(
+	client *gitlab.Client,
+	group string,
+) error {
+
+	// Find the group ID.
+	groupID, err := gitlab_util.FindExactGroupID(client.Groups, group)
+	if err != nil {
+		return err
+	}
+	
+	// Get the list of projects.
+	opts := gitlab.ListGroupProjectsOptions{}
+	opts.IncludeSubGroups = gitlab.Ptr(true)
+	opts.Page = 1
+
+	// Iterate over each page of groups.
+	for {
+		projects, resp, err :=
+			client.Groups.ListGroupProjects(groupID, &opts)
+		if err != nil {
+			return fmt.Errorf("PrintProjects: %w\n", err)
+		}
+
+		// Print each project.
+		for _, project := range projects {
+			fmt.Printf("%v: %v\n", project.ID, project.WebURL)
+		}
+
+		// Check if done.
+		if resp.NextPage == 0 {
+			break
+		}
+
+		// Move to the next page.
+		opts.Page = resp.NextPage
+	}
+
+	return nil
+}
+
 func main() {
 
 	var client *gitlab.Client
 	var authInfo authinfo.AuthInfo
-	var listProjOpts gitlab.ListProjectsOptions
-	var projects []*gitlab.Project
 	
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
@@ -141,17 +182,10 @@ func main() {
 		goto out
 	}
 
-	// Get the list of projects.
-	listProjOpts = gitlab.ListProjectsOptions{}
-	projects, _, err = client.Projects.ListProjects(&listProjOpts)
+	// Print the projects.
+	err = PrintProjects(client, opts.Group)
 	if err != nil {
-		err = fmt.Errorf("ListProjects: %w\n", err)
 		goto out
-	}
-
-	// Print each project.
-	for _, project := range projects {
-		fmt.Printf("%v: %v\n", project.ID, project.WebURL)
 	}
 
 out:
