@@ -48,6 +48,7 @@ func (opts *Options) Initialize() error {
 
 	// Inform the "flag" package where it should store the
 	// command-specific options.
+	flag.BoolVar(&opts.DryRun, "n", opts.DryRun, "print what it would do instead of actually doing it")
 	flag.BoolVar(&opts.DryRun, "dry-run", opts.DryRun, "print what it would do instead of actually doing it")
 	flag.StringVar(&opts.Expr, "expr", "", "regular expression which filters the projects")
 	flag.StringVar(&opts.Group, "group", "", "group for which projects will be listed")
@@ -124,6 +125,39 @@ func DeleteProject(
 	return nil
 }
 
+// DeleteProjects deletes all the projects in a group (recursively or
+// not) for each project whose full path name matches the regular
+// expression.  An empty regular expression matches any string.  If
+// dryRun is true, this function only prints what it would without
+// actually doing it.
+func DeleteProjects(
+	client *gitlab.Client,
+	group string,
+	expr string,
+	recursive bool,
+	dryRun bool,
+) error {
+
+	// Collect projects.
+	fmt.Printf("- Collecting projects ... ")
+	projects, err := gitlab_util.GetAllProjects(
+		client.Groups, group, expr, recursive)
+	if err != nil {
+		return fmt.Errorf("DeleteProjects: %w", err)
+	}
+	fmt.Printf("Done.\n")
+
+	// Delete projects.
+	for _, project := range projects {
+		err = DeleteProject(client.Projects, project, dryRun)
+		if err != nil {
+			return fmt.Errorf("DeleteProjects: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func main() {
 
 	var client *gitlab.Client
@@ -172,16 +206,9 @@ func main() {
 		goto out
 	}
 
-	// Delete projects.
-	err = gitlab_util.ForEachProjectInGroup(
-		client.Groups,
-		opts.Group,
-		opts.Expr,
-		opts.Recursive,
-		func (g *gitlab.Group, p *gitlab.Project) (bool, error) {
-			err = DeleteProject(client.Projects, p, opts.DryRun)
-			return err == nil, err
-		})
+	// Delete Projects
+	err = DeleteProjects(
+		client, opts.Group, opts.Expr, opts.Recursive, opts.DryRun)
 	if err != nil {
 		goto out
 	}
