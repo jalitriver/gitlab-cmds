@@ -61,6 +61,25 @@ func (opts *Options) Initialize() error {
 	return nil
 }
 
+// ParseOptions uses the "flag" package to parse our command-line
+// options and return the result.
+func ParseOptions() (*Options, error) {
+
+	// Initialize a new Options instance including reading default
+	// options from the options.xml configuration file.
+	opts := new(Options)
+	err := opts.Initialize()
+	if err != nil {
+		return nil ,err
+	}
+
+	// Augment the options from the options.xml file with options from
+	// the command-line arguments.
+	flag.Parse()
+
+	return opts, nil
+}
+
 func main() {
 
 	var err error
@@ -82,11 +101,7 @@ func main() {
 	}
 
 	// Parse command-line arguments.
-	opts := new(Options)
-	err = opts.Initialize()
-	if err == nil {
-		flag.Parse()
-	}
+	opts, err := ParseOptions()
 	if err != nil {
 		out := flag.CommandLine.Output()
 		fmt.Fprintf(out, "%v\n", err)
