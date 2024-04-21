@@ -95,7 +95,7 @@ func ParseOptions() (*Options, error) {
 	opts := new(Options)
 	err := opts.Initialize()
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 
 	// Augment the options from the options.xml file with options from
@@ -146,7 +146,7 @@ func CreateProject(
 	if !dryRun {
 		_, _, err := client.Projects.CreateProject(&opts)
 		if err != nil {
-			return fmt.Errorf("CreateProject: %w", err)			
+			return fmt.Errorf("CreateProject: %w", err)
 		}
 	}
 	fmt.Printf("Done.\n")
@@ -165,7 +165,7 @@ func CreateProjects(
 	projectCount uint64,
 	dryRun bool,
 ) error {
-	
+
 	// Get the parent group ID.
 	fmt.Printf("- Searching for ID for parent group %q ... ", parentGroup)
 	g, err := gitlab_util.FindExactGroup(client.Groups, parentGroup)

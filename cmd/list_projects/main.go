@@ -86,7 +86,7 @@ func ParseOptions() (*Options, error) {
 	opts := new(Options)
 	err := opts.Initialize()
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 
 	// Augment the options from the options.xml file with options from
@@ -105,7 +105,7 @@ func main() {
 
 	var client *gitlab.Client
 	var authInfo authinfo.AuthInfo
-	
+
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 
@@ -152,7 +152,7 @@ func main() {
 	// Print the projects.
 	err = gitlab_util.ForEachProjectInGroup(
 		client.Groups, opts.Group, opts.Expr, opts.Recursive,
-		func (g *gitlab.Group, p *gitlab.Project) (bool, error) {
+		func(g *gitlab.Group, p *gitlab.Project) (bool, error) {
 			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
 			return true, nil
 		})

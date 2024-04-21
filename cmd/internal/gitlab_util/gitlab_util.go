@@ -73,7 +73,7 @@ func ForEachProjectInGroup(
 	group string,
 	expr string,
 	recursive bool,
-	f func (group *gitlab.Group, project *gitlab.Project) (bool, error),
+	f func(group *gitlab.Group, project *gitlab.Project) (bool, error),
 ) error {
 
 	// Find the group.
@@ -87,7 +87,7 @@ func ForEachProjectInGroup(
 	if err != nil {
 		return fmt.Errorf("ForEachProjectInGroup: %w", err)
 	}
-	
+
 	// Set up the options for ListGroupProjects().
 	opts := gitlab.ListGroupProjectsOptions{}
 	opts.IncludeSubGroups = gitlab.Ptr(recursive)
@@ -162,6 +162,6 @@ func GetAllProjects(
 	if err != nil {
 		return nil, fmt.Errorf("GetAllProjects: %w", err)
 	}
-	
+
 	return result, nil
 }

@@ -92,7 +92,7 @@ func ParseOptions() (*Options, error) {
 	opts := new(Options)
 	err := opts.Initialize()
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 
 	// Augment the options from the options.xml file with options from
@@ -162,7 +162,7 @@ func main() {
 
 	var client *gitlab.Client
 	var authInfo authinfo.AuthInfo
-	
+
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 
