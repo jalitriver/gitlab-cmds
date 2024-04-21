@@ -22,7 +22,7 @@ type CommonOptions struct {
 	// line, not in the options.xml file (because it leads to circular
 	// logic having the user specify the location of the options.xml
 	// file in the options.xml file).
-	OptionsFileName string `xml:"optons-file-name,omitempty"`
+	OptionsFileName string `xml:"-"`
 }
 
 // Initialize initializes this CommonOptions instance for use the the
