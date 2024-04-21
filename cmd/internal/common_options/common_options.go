@@ -25,8 +25,8 @@ type CommonOptions struct {
 	OptionsFileName string `xml:"-"`
 }
 
-// Initialize initializes this CommonOptions instance for use the the
-// "flag" package in order to parse command-line options.
+// Initialize initializes this CommonOptions instance so it can be
+// used with the "flag" package to parse the command-line arguments.
 func (opts *CommonOptions) Initialize() {
 
 	// Set default values that differ from the zero defaults.
