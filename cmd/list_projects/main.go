@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/authinfo"
-	"github.com/jalitriver/gitlab-cmds/cmd/internal/common_options"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/global_options"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/xanzy/go-gitlab"
 )
@@ -16,8 +16,8 @@ import (
 // Options holds the command-line options and values read from options.xml.
 type Options struct {
 
-	// Common Options
-	common_options.CommonOptions
+	// Global Options
+	global_options.GlobalOptions
 
 	// Expr is the regular expression that filters the projects.
 	Expr string
@@ -38,9 +38,9 @@ type Options struct {
 // flag.Parse() a second time.
 func (opts *Options) Initialize() error {
 
-	// Inform the "flag" package where it should store the common
+	// Inform the "flag" package where it should store the global
 	// command-line options.
-	opts.CommonOptions.Initialize()
+	opts.GlobalOptions.Initialize()
 
 	// Inform the "flag" package where it should store the
 	// command-specific options.

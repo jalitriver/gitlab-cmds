@@ -1,15 +1,15 @@
 // Data structure used to collect options from config.xml and from the
 // command line.
 
-package common_options
+package global_options
 
 import (
 	"flag"
 )
 
-// CommonOptions holds the command-line options and options in the
+// GlobalOptions holds the command-line options and options in the
 // options.xml that are need by most of our commands.
-type CommonOptions struct {
+type GlobalOptions struct {
 
 	// AuthFileName is an alternative file name for auth.xml.
 	AuthFileName string `xml:"auth-file-name"`
@@ -25,9 +25,9 @@ type CommonOptions struct {
 	OptionsFileName string `xml:"-"`
 }
 
-// Initialize initializes this CommonOptions instance so it can be
+// Initialize initializes this GlobalOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *CommonOptions) Initialize() {
+func (opts *GlobalOptions) Initialize() {
 
 	// Set default values that differ from the zero defaults.
 	if opts.AuthFileName == "" {
