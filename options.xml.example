@@ -1,17 +1,47 @@
-<Options>
+<options>
 
-  <!-- Base URL for connecting to Gitlab REST endpoints.  Do *not*
-       include the "api/v4" part.  Defaults to
-       "https://gitlab.com/". -->
-  <!--
-  <base-url>https://gitlab.com/</base-url>
-  -->
+  <!-- All of the options below can also be specified on the command
+       line.  Command-line options override the options specified in
+       this file.  The options commented out below, show the default
+       value for those options and can safely be removed.  In most
+       cases, only the <global-options> section (at the top) needs to
+       completed.  All other sections can be removed unless you have
+       special needs. -->
 
-  <!-- Location of file that holds authorization information.  It goes
-       without saying permissions on this file should deny access to
-       anyone other than the user.  Defaults to "auth.xml". -->
-  <!--
-  <auth-file-name>auth.xml</auth-file-name>
-  -->
+  <!-- Global Options -->
+  <global-options>
 
-</Options>
+    <!-- Base URL for connecting to Gitlab REST endpoints.  Do *not*
+         include the "api/v4" part.  Defaults to
+         "https://gitlab.com/". -->
+    <base-url>https://gitlab.com/</base-url>
+
+    <!-- Location of file that holds authorization information.  It goes
+         without saying permissions on this file should deny access to
+         anyone other than the user.  Defaults to "auth.xml". -->
+    <auth-file-name>auth.xml</auth-file-name>
+
+  </global-options>
+
+  <!-- Options for the "project" command. -->
+  <project-options>
+
+    <!-- Options for the "project list" command. -->
+    <list-options>
+
+	  <!-- Expr is the regular expression that filters the projects.
+	       An empty regular expression matches all projects. -->
+      <expr></expr>
+
+      <!-- Group for which projects will be listed.  The group should
+           not be empty. -->
+      <group></group>
+
+	  <!-- Recursive controls whether the projects are listed recursively. -->
+      <recursive>false</recursive>
+
+    </list-options>
+
+  </project-options>
+
+</options>
