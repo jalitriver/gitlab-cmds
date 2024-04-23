@@ -22,6 +22,10 @@
 
   </global-options>
 
+  <!-- =====================================================================
+    == XML elements below here can be safely deleted if they are not needed.
+    ======================================================================== -->
+
   <!-- Options for the "project" command. -->
   <project-options>
 
