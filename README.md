@@ -4,11 +4,10 @@ GitLab Commands
 
 ## Getting Started
 
-1. After cloning the repository, build the commands you want to use as
-   follows:
+1. Install the binary
 
     ```
-        go build ./cmd/<command>
+        go install github.com/jalitriver/gitlab-cmds/cmd/glcli@latest
     ```
 
 1. Set up your authentication information as follows:
