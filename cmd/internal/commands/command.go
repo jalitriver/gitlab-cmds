@@ -90,7 +90,7 @@ type ParentCommand[T any] struct {
 // args[0] using the remaining arguments are arguments for the
 // subcommand.
 func (p *ParentCommand[T]) DispatchSubcommand(args []string) error {
-	
+
 	// Determine which subcommand the user specified.
 	if len(args) < 1 {
 		return fmt.Errorf("no subcommand specified")

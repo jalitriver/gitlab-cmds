@@ -39,7 +39,6 @@ import (
 
 // ProjectOptions are the options needed by this command.
 type ProjectOptions struct {
-
 	ProjectCreateRandomOpts ProjectCreateRandomOptions `xml:"create-random-options"`
 
 	ProjectDeleteOpts ProjectDeleteOptions `xml:"delete-options"`
@@ -82,7 +81,7 @@ func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
 	fmt.Fprintf(out, "\n")
 	for _, subcmd := range cmd.SortedCommandNames() {
 		fmt.Fprintf(out, "  %s\n", subcmd)
-	}	
+	}
 	fmt.Fprintf(out, "\n")
 	if out == os.Stderr {
 		os.Exit(1)

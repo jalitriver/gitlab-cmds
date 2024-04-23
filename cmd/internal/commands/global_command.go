@@ -164,7 +164,7 @@ type GlobalCommand struct {
 	// generators is a slice of functions that generate the runnable
 	// subcommands.  (This has nothing to do with Python-style
 	// generators.)  See the comments for addSubcmdGenerators().
-	generators map[string]func()Runner
+	generators map[string]func() Runner
 
 	// client is the Gitlab communication client
 	client *gitlab.Client
@@ -172,7 +172,6 @@ type GlobalCommand struct {
 	// version is the program version needed for the --version option.
 	version string
 }
-
 
 // Usage prints the main usage message to the output writer.  If
 // err is not nil, it will be printed before the main output.
@@ -208,9 +207,9 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 	// Print the subcommand names.
 	for _, subcmd := range cmd.SortedCommandNames() {
 		fmt.Fprintf(out, "  %s\n", subcmd)
-	}	
+	}
 	fmt.Fprintf(out, "\n")
-	
+
 	if out == os.Stderr {
 		os.Exit(1)
 	}
@@ -227,7 +226,7 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 // Runnable.  Thus, if Usage() is called early it will still have the
 // complete list of subcommands to display.
 func (cmd *GlobalCommand) addSubcmdGenerators() {
-	cmd.generators["project"] = func () Runner {
+	cmd.generators["project"] = func() Runner {
 		return NewProjectCommand(
 			"project", &cmd.allOpts.ProjectOpts, cmd.client)
 	}
@@ -256,14 +255,14 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 		ParentCommand: ParentCommand[GlobalOptions]{
 			BasicCommand: BasicCommand[GlobalOptions]{
 				commandName: name,
-				flags: flag.NewFlagSet(name, flag.ExitOnError),
-				options: &allOpts.GlobalOpts,
+				flags:       flag.NewFlagSet(name, flag.ExitOnError),
+				options:     &allOpts.GlobalOpts,
 			},
 			subcmds: make(map[string]Runner),
 		},
-		allOpts: allOpts,
-		generators: make(map[string]func()Runner),
-		version: version,
+		allOpts:    allOpts,
+		generators: make(map[string]func() Runner),
+		version:    version,
 	}
 
 	// Set up the function that prints the global usage and exits.

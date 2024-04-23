@@ -27,7 +27,7 @@ import (
 
 // ProjectListOptions are the options needed by this command.
 type ProjectListOptions struct {
-	
+
 	// Expr is the regular expression that filters the projects.
 	Expr string `xml:"expr"`
 
@@ -87,7 +87,7 @@ func NewProjectListCommand(
 				flags:       flag.NewFlagSet(name, flag.ExitOnError),
 				options:     opts,
 			},
-			client:      client,
+			client: client,
 		},
 	}
 

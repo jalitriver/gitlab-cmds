@@ -27,7 +27,7 @@ import (
 
 // ProjectDeleteOptions are the options needed by this command.
 type ProjectDeleteOptions struct {
-	
+
 	// DryRun should cause the command to print what it would do
 	// instead of actually doing it.
 	DryRun bool `xml:"dry-run"`
@@ -99,7 +99,7 @@ func NewProjectDeleteCommand(
 				flags:       flag.NewFlagSet(name, flag.ExitOnError),
 				options:     opts,
 			},
-			client:      client,
+			client: client,
 		},
 	}
 
@@ -108,7 +108,6 @@ func NewProjectDeleteCommand(
 
 	return cmd
 }
-
 
 // DeleteProject deletes the project.  If dryRun is true, this
 // function only prints what it would without actually doing it.
