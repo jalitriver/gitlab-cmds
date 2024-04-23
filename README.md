@@ -12,6 +12,8 @@ GitLab Commands
 
 1. Set up your authentication information as follows:
 
+    1. Download [auth.xml.example](https://raw.githubusercontent.com/jalitriver/gitlab-cmds/master/auth.xml.example).
+
     1. cp auth.xml.example auth.xml
     
     1. chmod 600 auth.xml
@@ -22,6 +24,8 @@ GitLab Commands
 1. Set up your options file which is used to avoid having to enter the
    same command-line options whenever a command is run.
 
+    1. Download [options.xml.example](https://raw.githubusercontent.com/jalitriver/gitlab-cmds/master/options.xml.example)
+    
     1. cp options.xml.example options.xml
 
     1. If using a private Gitlab server, edit the options.xml file to
