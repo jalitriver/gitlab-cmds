@@ -20,15 +20,15 @@ GitLab Commands
     1. If using a private Gitlab server, edit the options.xml file to
        point to it.
 
+    1. By default, glcli looks in your current directory for
+       options.xml, or you can use `glcli --options <path>` to specify
+       an alternative location.
+    
     1. You should always have an options.xml file even if everything
        (except for the root tags) is commented out; otherwise, you
        will need to pass `--options ''` to each command invocation to
        specify no options.xml file.
 
-    1. By default, glcli looks in your current directory for
-       options.xml, or you can use `glcli --options <path>` to specify
-       an alternative location.
-    
 1. Set up your authentication information as follows:
 
     1. Download [auth.xml.example](https://raw.githubusercontent.com/jalitriver/gitlab-cmds/master/auth.xml.example).
