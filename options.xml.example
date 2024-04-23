@@ -10,10 +10,9 @@
 
   <!-- Global Options -->
   <global-options>
-
+      
     <!-- Base URL for connecting to Gitlab REST endpoints.  Do *not*
-         include the "api/v4" part.  Defaults to
-         "https://gitlab.com/". -->
+         include the "api/v4" part.  Defaults to "https://gitlab.com/". -->
     <base-url>https://gitlab.com/</base-url>
 
     <!-- Location of file that holds authorization information.  It goes
@@ -25,6 +24,47 @@
 
   <!-- Options for the "project" command. -->
   <project-options>
+
+    <!-- Options for the "project create-random" command. -->
+    <create-random-options>
+
+	  <!-- DryRun should cause the command to print what it would do
+	       instead of actually doing it. -->
+      <dry-run>false</dry-run>
+
+      <!-- ParentGroup is the group where projects will be created.
+           The parent group must already exist. -->
+      <parent-group></parent-group>
+
+      <!-- ProjectBaseName is the base name all new project will have.
+           The full name for the project will include random
+           characters after the base name. -->
+      <ProjectBaseName></ProjectBaseName>
+
+      <!-- ProjectCount is the number of projects to create. -->
+      <ProjectCount></ProjectCount>
+
+    </create-random-options>
+
+    <!-- Options for the "project delete" command. -->
+    <delete-options>
+
+	  <!-- DryRun should cause the command to print what it would do
+	       instead of actually doing it. -->
+      <dry-run>false</dry-run>
+
+	  <!-- Expr is the regular expression that filters the projects.
+	       An empty regular expression matches all projects. -->
+      <expr></expr>
+
+      <!-- Group for which projects will be listed.  The group should
+           not be empty. -->
+      <group></group>
+
+	  <!-- Recursive controls whether the projects are listed recursively. -->
+      <recursive>false</recursive>
+
+    </delete-options>
 
     <!-- Options for the "project list" command. -->
     <list-options>
