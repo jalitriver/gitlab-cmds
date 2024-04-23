@@ -10,7 +10,7 @@
 
   <!-- Global Options -->
   <global-options>
-      
+
     <!-- Base URL for connecting to Gitlab REST endpoints.  Do *not*
          include the "api/v4" part.  Defaults to "https://gitlab.com/". -->
     <base-url>https://gitlab.com/</base-url>
@@ -28,8 +28,8 @@
     <!-- Options for the "project create-random" command. -->
     <create-random-options>
 
-	  <!-- DryRun should cause the command to print what it would do
-	       instead of actually doing it. -->
+      <!-- DryRun should cause the command to print what it would do
+           instead of actually doing it. -->
       <dry-run>false</dry-run>
 
       <!-- ParentGroup is the group where projects will be created.
@@ -49,19 +49,19 @@
     <!-- Options for the "project delete" command. -->
     <delete-options>
 
-	  <!-- DryRun should cause the command to print what it would do
-	       instead of actually doing it. -->
+      <!-- DryRun should cause the command to print what it would do
+           instead of actually doing it. -->
       <dry-run>false</dry-run>
 
-	  <!-- Expr is the regular expression that filters the projects.
-	       An empty regular expression matches all projects. -->
+      <!-- Expr is the regular expression that filters the projects.
+           An empty regular expression matches all projects. -->
       <expr></expr>
 
       <!-- Group for which projects will be listed.  The group should
            not be empty. -->
       <group></group>
 
-	  <!-- Recursive controls whether the projects are listed recursively. -->
+      <!-- Recursive controls whether the projects are listed recursively. -->
       <recursive>false</recursive>
 
     </delete-options>
@@ -69,15 +69,15 @@
     <!-- Options for the "project list" command. -->
     <list-options>
 
-	  <!-- Expr is the regular expression that filters the projects.
-	       An empty regular expression matches all projects. -->
+      <!-- Expr is the regular expression that filters the projects.
+           An empty regular expression matches all projects. -->
       <expr></expr>
 
       <!-- Group for which projects will be listed.  The group should
            not be empty. -->
       <group></group>
 
-	  <!-- Recursive controls whether the projects are listed recursively. -->
+      <!-- Recursive controls whether the projects are listed recursively. -->
       <recursive>false</recursive>
 
     </list-options>
