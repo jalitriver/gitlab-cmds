@@ -7,6 +7,9 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/xanzy/go-gitlab"
@@ -84,6 +87,31 @@ type ProjectDeleteCommand struct {
 	GitlabCommand[ProjectDeleteOptions]
 }
 
+// Usage prints the usage message to the output writer.  If err is not
+// nil, it will be printed before the main output.
+func (cmd *ProjectDeleteCommand) Usage(out io.Writer, err error) {
+	basename := filepath.Base(os.Args[0])
+	if err != nil {
+		fmt.Fprintf(out, "%v\n", err)
+	}
+	fmt.Fprintf(out, "\n")
+	fmt.Fprintf(out,
+		"Usage: %s [global_options] project delete [subcmd_options]\n",
+		basename)
+	fmt.Fprintf(out, "\n")
+	fmt.Fprintf(out, "    Deletes projects recursively.\n")
+	fmt.Fprintf(out, "\n")
+	fmt.Fprintf(out, "Delete Options:\n")
+	fmt.Fprintf(out, "\n")
+	cmd.flags.SetOutput(out)
+	cmd.flags.PrintDefaults()
+	fmt.Fprintf(out, "\n")
+	if out == os.Stderr {
+		os.Exit(1)
+	}
+	os.Exit(0)
+}
+
 // NewProjectDeleteCommand returns a new and initialized ProjectDeleteCommand instance.
 func NewProjectDeleteCommand(
 	name string,
@@ -102,6 +130,9 @@ func NewProjectDeleteCommand(
 			client: client,
 		},
 	}
+
+	// Set up the function that prints the global usage and exits.
+	cmd.flags.Usage = func() { cmd.Usage(os.Stderr, nil) }
 
 	// Initialize our command-line options.
 	opts.Initialize(cmd.flags)

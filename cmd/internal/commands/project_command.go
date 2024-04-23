@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -66,16 +67,16 @@ type ProjectCommand struct {
 // Usage prints the main usage message to the output writer.  If
 // err is not nil, it will be printed before the main output.
 func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
+	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "Project Options:\n")
+	fmt.Fprintf(out,
+		"Usage: %s [global_options] project [subcmd]\n",
+		basename)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "  Options must immediately follow the command.\n")
-	fmt.Fprintf(out, "\n")
-	cmd.flags.SetOutput(out)
-	cmd.flags.PrintDefaults()
+	fmt.Fprintf(out, "    Commands for administering a Gitlab projects.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Subcommands:\n")
 	fmt.Fprintf(out, "\n")
