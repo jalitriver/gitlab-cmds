@@ -3,10 +3,10 @@
 // If you need to add a new subcommand, do the following:
 //
 //   1) Create the new subcommand similar to
-//      cmd/internal/options/project_command.go if the subcommand will
-//      have its own set of subcommands or similar to
-//      cmd/internal/options/project_list_command.go if the subcommand
-//      will actually do something.
+//      cmd/internal/commands/project_command.go if the subcommand
+//      will have its own set of subcommands or similar to
+//      cmd/internal/commands/project_list_command.go if the
+//      subcommand will actually do something.
 //
 //   2) Add the resulting new options struct to the Options struct
 //      below so the options can also be specified in the options.xml
