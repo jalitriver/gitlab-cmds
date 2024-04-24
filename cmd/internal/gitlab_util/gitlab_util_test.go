@@ -45,12 +45,12 @@ func (s *GitlabProjectsServiceStub)	GetProjectApprovalRules(
 			Name: "Rule2",
 			EligibleApprovers: []*gitlab.BasicUser{
 				&gitlab.BasicUser{
-					ID: 1,
-					Username: "aberns",
+					ID: 3,
+					Username: "cdragun",
 				},
 				&gitlab.BasicUser{
-					ID: 2,
-					Username: "bcrocket",
+					ID: 4,
+					Username: "delliot",
 				},
 			},
 		},
@@ -94,7 +94,7 @@ func TestForEachApprovalRuleInProject(t *testing.T) {
 	var actual []string
 	expected := []string{
 		"1: Rule1: [(1, aberns), (2, bcrocket)]",
-		"2: Rule2: [(1, aberns), (2, bcrocket)]",
+		"2: Rule2: [(3, cdragun), (4, delliot)]",
 	}
 	
 	ForEachApprovalRuleInProject(
