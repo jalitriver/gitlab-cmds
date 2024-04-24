@@ -123,9 +123,9 @@ func NewProjectDeleteCommand(
 	cmd := &ProjectDeleteCommand{
 		GitlabCommand: GitlabCommand[ProjectDeleteOptions]{
 			BasicCommand: BasicCommand[ProjectDeleteOptions]{
-				name: name,
-				flags:       flag.NewFlagSet(name, flag.ExitOnError),
-				options:     opts,
+				name:    name,
+				flags:   flag.NewFlagSet(name, flag.ExitOnError),
+				options: opts,
 			},
 			client: client,
 		},

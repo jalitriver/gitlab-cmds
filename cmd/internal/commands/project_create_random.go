@@ -124,9 +124,9 @@ func NewProjectCreateRandomCommand(
 	cmd := &ProjectCreateRandomCommand{
 		GitlabCommand: GitlabCommand[ProjectCreateRandomOptions]{
 			BasicCommand: BasicCommand[ProjectCreateRandomOptions]{
-				name: name,
-				flags:       flag.NewFlagSet(name, flag.ExitOnError),
-				options:     opts,
+				name:    name,
+				flags:   flag.NewFlagSet(name, flag.ExitOnError),
+				options: opts,
 			},
 			client: client,
 		},

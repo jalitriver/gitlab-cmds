@@ -254,9 +254,9 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 	cmd := &GlobalCommand{
 		ParentCommand: ParentCommand[GlobalOptions]{
 			BasicCommand: BasicCommand[GlobalOptions]{
-				name: name,
-				flags:       flag.NewFlagSet(name, flag.ExitOnError),
-				options:     &allOpts.GlobalOpts,
+				name:    name,
+				flags:   flag.NewFlagSet(name, flag.ExitOnError),
+				options: &allOpts.GlobalOpts,
 			},
 			subcmds: make(map[string]Runner),
 		},
