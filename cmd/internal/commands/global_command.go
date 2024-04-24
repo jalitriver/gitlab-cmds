@@ -110,7 +110,7 @@ type GlobalOptions struct {
 
 	// ShowOptions is whether to print options as XML and immediately
 	// exit.  Defaults to false.
-	ShowOptions bool  `xml:"-"`
+	ShowOptions bool `xml:"-"`
 
 	// Version is whether the user wants the version.  Defaults to false.
 	Version bool `xml:"version"`
@@ -192,12 +192,12 @@ func GetOptionsXMLFileName(args []string) (string, error) {
 // dependencies.  Values for program options come from the following
 // three locations in increasing order of priority:
 //
-//   1) from the Initialize() calls for each specific data structure
-//      which establishes defaults that are hard-coded
+//  1. from the Initialize() calls for each specific data structure
+//     which establishes defaults that are hard-coded
 //
-//   2) from the options.xml file
+//  2. from the options.xml file
 //
-//   3) from the command-line
+//  3. from the command-line
 //
 // The first circular dependency is that we need to create all of the
 // subcommands which call Initialize() to establish the hard-coded
