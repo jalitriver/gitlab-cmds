@@ -104,8 +104,8 @@ func (cmd *ProjectsCommand) addSubcmds(client *gitlab.Client) {
 		"list", &cmd.options.ProjectsListOpts, client)
 }
 
-// NewProjectsCommand returns a new and initialized ProjectsCommand instance
-// having the specified name.
+// NewProjectsCommand returns a new, initialized ProjectsCommand
+// instance having the specified name.
 func NewProjectsCommand(
 	name string,
 	opts *ProjectsOptions,
