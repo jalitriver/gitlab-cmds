@@ -104,8 +104,7 @@ func (p *ParentCommand[T]) DispatchSubcommand(args []string) error {
 	}
 
 	// Run the subcommand.
-	err := runner.Run(args[1:])
-	return err
+	return runner.Run(args[1:])
 }
 
 // SortedCommandNames returns a slice that holds the sorted command names.
