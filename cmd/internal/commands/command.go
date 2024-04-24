@@ -43,10 +43,10 @@ type BasicCommand[T any] struct {
 	// Note that it is tempting to embed the options directly in this
 	// struct or even to allocate the options on the heap.  However,
 	// the way it works is the options are embedded in the single
-	// large "Options" data structure in main.go so that all of the
-	// options can be read from a single options.xml file.  Thus, this
-	// pointer is actually just a pointer into the large "Options"
-	// data structure in main.go.
+	// large "Options" data structure in global_command.go so that all
+	// of the options can be read from a single options.xml file.
+	// Thus, this pointer is actually just a pointer into the large
+	// "Options" data structure in global_command.go.
 	options *T
 }
 
