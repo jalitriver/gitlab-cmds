@@ -1,6 +1,6 @@
-// cmd/glcli/main.go is the main entry point for the glcli program.
-// It provides (mostly recursive) convenience functions for managing a
-// Gitlab server.  It works similar to the "aws" CLI with subcommands.
+// This is the main entry point for the program which is designed
+// around a command-line interface that accepts subcommands similar to
+// how "aws" and "git" work.
 
 package main
 
