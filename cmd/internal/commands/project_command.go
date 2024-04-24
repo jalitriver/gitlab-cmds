@@ -57,7 +57,8 @@ func (opts *ProjectOptions) Initialize(flags *flag.FlagSet) {
 // ProjectCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectCommand says project.
+// ProjectCommand provides subcommands for Gitlab project related
+// maintenance.
 type ProjectCommand struct {
 
 	// Embed the Command members.

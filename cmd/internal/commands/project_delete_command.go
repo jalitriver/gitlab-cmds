@@ -78,9 +78,9 @@ func (opts *ProjectDeleteOptions) Initialize(flags *flag.FlagSet) {
 // ProjectDeleteCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectDeleteCommand implements the "project list" command which
-// optionally recursively lists projects in a group where the listed
-// projects are selected by a regular expression.
+// ProjectDeleteCommand implements the "project delete" command which
+// optionally recursively deletes projects in a group where the
+// deleted projects are selected by a regular expression.
 type ProjectDeleteCommand struct {
 
 	// Embed the Command members.
