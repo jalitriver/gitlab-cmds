@@ -44,8 +44,7 @@ import (
 // ProjectsApprovalRulesOptions are the options needed by this command.
 type ProjectsApprovalRulesOptions struct {
 
-	/// TODO
-	///ProjectsListOpts ProjectsListOptions `xml:"list-options"`
+	ProjectsApprovalRulesListOpts ProjectsApprovalRulesListOptions `xml:"list-options"`
 }
 
 // Initialize initializes this ProjectsApprovalRulesOptions instance so it can be
@@ -94,7 +93,8 @@ func (cmd *ProjectsApprovalRulesCommand) Usage(out io.Writer, err error) {
 
 // addSubcmds adds the subcommands for this command.
 func (cmd *ProjectsApprovalRulesCommand) addSubcmds(client *gitlab.Client) {
-	/// TODO
+	cmd.subcmds["list"] = NewProjectsApprovalRulesListCommand(
+		"list", &cmd.options.ProjectsApprovalRulesListOpts, client)
 }
 
 // NewProjectsApprovalRulesCommand returns a new, initialized

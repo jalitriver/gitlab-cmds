@@ -188,7 +188,6 @@ func ForEachApprovalRuleInProject(
 	s *gitlab.ProjectsService,
 	p *gitlab.Project,
 	f func(
-		project *gitlab.Project,
 		approvalRule *gitlab.ProjectApprovalRule,
 	) (bool, error),
 ) error {
@@ -209,7 +208,7 @@ func ForEachApprovalRuleInProject(
 
 		// Invoke the callbacks.
 		for _, rule := range rules {
-			more, err := f(p, rule)
+			more, err := f(rule)
 			if err != nil {
 				return err
 			}
