@@ -171,12 +171,15 @@ func GetOptionsXMLFileName(args []string) (string, error) {
 	// Create a local flag.FlagSet to parse the command-line arguments.
 	flags := flag.NewFlagSet("local", flag.ExitOnError)
 
-	// Set up the hard-coded default for the GlobalOptions and prepare
-	// to parse the command-line arguments.
+	// Set up the hard-coded defaults for the GlobalOptions and
+	// prepare to parse the command-line arguments.
 	opts.GlobalOpts.Initialize(flags)
 
 	// Parse the command-line options to determine the correct
-	// location of the options.xml file.
+	// location of the options.xml file.  Remember, the location of
+	// the options.xml file is necessarily not stored in the
+	// options.xml.  The location can only be altered on the
+	// command-line.
 	err = flags.Parse(args)
 	if err != nil {
 		return "", err
@@ -199,8 +202,8 @@ func GetOptionsXMLFileName(args []string) (string, error) {
 // The first circular dependency is that we need to create all of the
 // subcommands which call Initialize() to establish the hard-coded
 // defaults, but we cannot create the subcommands until after parsing
-// options.xml and the command-line to determine the correct type of
-// gitlab.Client to pass into the subcommands.
+// options.xml and the command-line to determine the correct set of
+// parameters to pass into the subcommands.
 //
 // The second circular dependency is that we need to read from
 // options.xml before parsing the command-line arguments to establish
@@ -213,10 +216,11 @@ func PeakAtGlobalOptions(args []string) (*GlobalOptions, error) {
 	// Create a local set of options.
 	opts := new(Options)
 
-	// Create a local flag.FlagSet our local options.
+	// Create a local flag.FlagSet for our local options.
 	flags := flag.NewFlagSet("local", flag.ExitOnError)
 
-	// Set up the hard-coded default for the GlobalOptions.
+	// Set up the hard-coded defaults for the GlobalOptions and
+	// prepare to parse the command-line arguments.
 	opts.GlobalOpts.Initialize(flags)
 
 	// Determine the location of the options.xml file.  This breaks
@@ -290,7 +294,6 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 	cmd.flags.SetOutput(out)
 	cmd.flags.PrintDefaults()
 	fmt.Fprintf(out, "\n")
-
 	fmt.Fprintf(out, "Subcommands:\n")
 	fmt.Fprintf(out, "\n")
 
@@ -319,11 +322,8 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 // global command.  A generator in this context is just a function
 // that creates the subcommand Runnable.  The reason for this is that
 // Usage() can be called very early before the subcommands can be
-// instantiated, but the Usage() command needs to be able to list the
-// subcommands.  So instead cmd.subcmds being populating with the
-// final Runnable subcommand, it is populated early with the generator
-// Runnable.  Thus, if Usage() is called early it will still have the
-// complete list of subcommands to display.
+// instantiated, but the Usage() command needs a list of subcommands
+// which it can always get from the cmd.generators.
 func (cmd *GlobalCommand) addSubcmdGenerators() {
 	cmd.generators["project"] = func(client *gitlab.Client) Runner {
 		return NewProjectCommand(
@@ -340,7 +340,7 @@ func (cmd *GlobalCommand) generateSubcmds(client *gitlab.Client) {
 	}
 }
 
-// NewGlobalCommand returns a new and initialized GlobalCommand instance
+// NewGlobalCommand returns a new, initialized GlobalCommand instance
 // having the specified name.
 func NewGlobalCommand(name string, version string) *GlobalCommand {
 
@@ -364,14 +364,15 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 		version:    version,
 	}
 
-	// Set up the function that prints the global usage and exits.
+	// Set up the function that exits after printing the global usage
+	// when a problem is detected when parsing command-line arguments.
 	cmd.flags.Usage = func() { cmd.Usage(os.Stderr, nil) }
 
 	// Initialize our command-line options.
 	cmd.options.Initialize(cmd.flags)
 
-	// Add the subcommand generators from which, at the appropriate
-	// time, the subcommands will be created .
+	// Add the subcommand generators from which the subcommands will
+	// be generated.
 	cmd.addSubcmdGenerators()
 
 	return cmd
@@ -401,6 +402,15 @@ func (cmd *GlobalCommand) Run(args []string) error {
 		fmt.Printf("%s v%s\n", cmd.name, cmd.version)
 		return nil
 	}
+
+	//
+	// NOTE: If you need to create objects to pass into the
+	// cmd.generateSubcmds() (below), this is the place to do it using
+	// "globalOpts", *not* cmd.options!  This breaks the first
+	// circular dependency described in the comments for
+	// PeakAtGlobalOptions() by using the options collected by the
+	// light-weight globalOpts returned by PeekAtGlobalOptions().
+	//
 
 	// Load the authentication information from file.  This breaks the
 	// first circular dependency described in the comments for
@@ -451,10 +461,15 @@ func (cmd *GlobalCommand) Run(args []string) error {
 	}
 
 	// Show options if requested.
-	if cmd.allOpts.GlobalOpts.ShowOptions {
+	if cmd.options.ShowOptions {
 		encoder := xml.NewEncoder(os.Stdout)
 		encoder.Indent("", "  ")
-		return encoder.Encode(cmd.allOpts)
+		err = encoder.Encode(cmd.allOpts)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Println()
+		return err
 	}
 
 	// Dispatch the subcommand specified by the remaining arguments.
