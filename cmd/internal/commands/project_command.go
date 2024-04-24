@@ -91,6 +91,7 @@ func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
 	os.Exit(0)
 }
 
+// addSubcmds adds the subcommands for this command.
 func (cmd *ProjectCommand) addSubcmds(client *gitlab.Client) {
 	cmd.subcmds["create-random"] = NewProjectCreateRandomCommand(
 		"create-random", &cmd.options.ProjectCreateRandomOpts, client)
