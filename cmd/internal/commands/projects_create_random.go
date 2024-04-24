@@ -1,5 +1,5 @@
-// This file provides the implementation for the "project
-// create-random" command which creates random projects en masse.
+// This file provides the implementation for the "projects create-random"
+// command which creates random projects en masse.
 
 package commands
 
@@ -16,7 +16,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectCreateRandomOptions
+// ProjectsCreateRandomOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -28,8 +28,8 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectCreateRandomOptions are the options needed by this command.
-type ProjectCreateRandomOptions struct {
+// ProjectsCreateRandomOptions are the options needed by this command.
+type ProjectsCreateRandomOptions struct {
 
 	// DryRun should cause the command to print what it would do
 	// instead of actually doing it.  Defaults to false.
@@ -39,7 +39,7 @@ type ProjectCreateRandomOptions struct {
 	// parent group must already exist.  Defaults to "".
 	ParentGroup string `xml:"parent-group"`
 
-	// ProjectBaseName is the base name all new project will have.
+	// ProjectBaseName is the base name all new projects will have.
 	// The full name for the project will include random characters
 	// after the base name.  Defaults to "".
 	ProjectBaseName string `xml:"project-base-name"`
@@ -48,10 +48,10 @@ type ProjectCreateRandomOptions struct {
 	ProjectCount uint64 `xml:"project-count"`
 }
 
-// Initialize initializes this ProjectCreateRandomOptions instance so
+// Initialize initializes this ProjectsCreateRandomOptions instance so
 // it can be used with the "flag" package to parse the command-line
 // arguments.
-func (opts *ProjectCreateRandomOptions) Initialize(flags *flag.FlagSet) {
+func (opts *ProjectsCreateRandomOptions) Initialize(flags *flag.FlagSet) {
 
 	// -n
 	flags.BoolVar(
@@ -76,27 +76,27 @@ func (opts *ProjectCreateRandomOptions) Initialize(flags *flag.FlagSet) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectCreateRandomCommand
+// ProjectsCreateRandomCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectCreateRandomCommand implements the "project create-random"
-// command which creates random project en masse.
-type ProjectCreateRandomCommand struct {
+// ProjectsCreateRandomCommand implements the "projects create-random"
+// command which creates random projects en masse.
+type ProjectsCreateRandomCommand struct {
 
 	// Embed the Command members.
-	GitlabCommand[ProjectCreateRandomOptions]
+	GitlabCommand[ProjectsCreateRandomOptions]
 }
 
 // Usage prints the usage message to the output writer.  If err is not
 // nil, it will be printed before the main output.
-func (cmd *ProjectCreateRandomCommand) Usage(out io.Writer, err error) {
+func (cmd *ProjectsCreateRandomCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] project create-random [subcmd_options]\n",
+		"Usage: %s [global_options] projects create-random [subcmd_options]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    Create projects en masse with random names.\n")
@@ -112,18 +112,18 @@ func (cmd *ProjectCreateRandomCommand) Usage(out io.Writer, err error) {
 	os.Exit(0)
 }
 
-// NewProjectCreateRandomCommand returns a new and initialized
-// ProjectCreateRandomCommand instance.
-func NewProjectCreateRandomCommand(
+// NewProjectsCreateRandomCommand returns a new, initialized
+// ProjectsCreateRandomCommand instance.
+func NewProjectsCreateRandomCommand(
 	name string,
-	opts *ProjectCreateRandomOptions,
+	opts *ProjectsCreateRandomOptions,
 	client *gitlab.Client,
-) *ProjectCreateRandomCommand {
+) *ProjectsCreateRandomCommand {
 
 	// Create the new command.
-	cmd := &ProjectCreateRandomCommand{
-		GitlabCommand: GitlabCommand[ProjectCreateRandomOptions]{
-			BasicCommand: BasicCommand[ProjectCreateRandomOptions]{
+	cmd := &ProjectsCreateRandomCommand{
+		GitlabCommand: GitlabCommand[ProjectsCreateRandomOptions]{
+			BasicCommand: BasicCommand[ProjectsCreateRandomOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -141,11 +141,11 @@ func NewProjectCreateRandomCommand(
 	return cmd
 }
 
-// CreateRandomProject creates a projects in the parent group
-// specified by parentGroupID.  The parentGroup string is only use for
-// logging.  The name of each project is a combination of the project
-// base name and a UUID.  If dryRun is true, this function only prints
-// what it would without actually doing it.
+// CreateRandomProject creates a project in the parent group specified
+// by parentGroupID.  The parentGroup string is only use for logging.
+// The name of each project is a combination of the project base name
+// and a UUID.  If dryRun is true, this function only prints what it
+// would without actually doing it.
 func CreateRandomProject(
 	client *gitlab.Client,
 	parentGroup *gitlab.Group,
@@ -213,7 +213,7 @@ func CreateRandomProjects(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectCreateRandomCommand) Run(args []string) error {
+func (cmd *ProjectsCreateRandomCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.

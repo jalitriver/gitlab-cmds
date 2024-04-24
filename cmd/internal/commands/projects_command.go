@@ -1,17 +1,17 @@
-// This file provides the implementation for the "project" command
+// This file provides the implementation for the "projects" command
 // which provides project related subcommands.
 //
 // If you need to add a new subcommand, do the following:
 //
 //   1) Create the new subcommand similar to
-//      cmd/internal/options/project_list_command.go.
+//      cmd/internal/options/projects_list_command.go.
 //
 //   2) Add the resulting new options struct to the Options struct
 //      below so the options can also be specified in the options.xml
 //      file.
 //
 //   3) Add the new subcommand as demonstrated in
-//      ProjectCommand.addSubcmds().
+//      ProjectsCommand.addSubcmds().
 
 package commands
 
@@ -26,7 +26,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectOptions
+// ProjectsOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -38,43 +38,43 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectOptions are the options needed by this command.
-type ProjectOptions struct {
-	ProjectCreateRandomOpts ProjectCreateRandomOptions `xml:"create-random-options"`
+// ProjectsOptions are the options needed by this command.
+type ProjectsOptions struct {
+	ProjectsCreateRandomOpts ProjectsCreateRandomOptions `xml:"create-random-options"`
 
-	ProjectDeleteOpts ProjectDeleteOptions `xml:"delete-options"`
+	ProjectsDeleteOpts ProjectsDeleteOptions `xml:"delete-options"`
 
-	ProjectListOpts ProjectListOptions `xml:"list-options"`
+	ProjectsListOpts ProjectsListOptions `xml:"list-options"`
 }
 
-// Initialize initializes this ProjectOptions instance so it can be
+// Initialize initializes this ProjectsOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *ProjectOptions) Initialize(flags *flag.FlagSet) {
+func (opts *ProjectsOptions) Initialize(flags *flag.FlagSet) {
 	// empty
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectCommand
+// ProjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectCommand provides subcommands for Gitlab project related
+// ProjectsCommand provides subcommands for Gitlab project related
 // maintenance.
-type ProjectCommand struct {
+type ProjectsCommand struct {
 
 	// Embed the Command members.
-	ParentCommand[ProjectOptions]
+	ParentCommand[ProjectsOptions]
 }
 
 // Usage prints the main usage message to the output writer.  If
 // err is not nil, it will be printed before the main output.
-func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
+func (cmd *ProjectsCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] project [subcmd]\n",
+		"Usage: %s [global_options] projects [subcmd]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    Command for administering a Gitlab projects.\n")
@@ -92,27 +92,27 @@ func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
 }
 
 // addSubcmds adds the subcommands for this command.
-func (cmd *ProjectCommand) addSubcmds(client *gitlab.Client) {
-	cmd.subcmds["create-random"] = NewProjectCreateRandomCommand(
-		"create-random", &cmd.options.ProjectCreateRandomOpts, client)
-	cmd.subcmds["delete"] = NewProjectDeleteCommand(
-		"delete", &cmd.options.ProjectDeleteOpts, client)
-	cmd.subcmds["list"] = NewProjectListCommand(
-		"list", &cmd.options.ProjectListOpts, client)
+func (cmd *ProjectsCommand) addSubcmds(client *gitlab.Client) {
+	cmd.subcmds["create-random"] = NewProjectsCreateRandomCommand(
+		"create-random", &cmd.options.ProjectsCreateRandomOpts, client)
+	cmd.subcmds["delete"] = NewProjectsDeleteCommand(
+		"delete", &cmd.options.ProjectsDeleteOpts, client)
+	cmd.subcmds["list"] = NewProjectsListCommand(
+		"list", &cmd.options.ProjectsListOpts, client)
 }
 
-// NewProjectCommand returns a new and initialized ProjectCommand instance
+// NewProjectsCommand returns a new and initialized ProjectsCommand instance
 // having the specified name.
-func NewProjectCommand(
+func NewProjectsCommand(
 	name string,
-	opts *ProjectOptions,
+	opts *ProjectsOptions,
 	client *gitlab.Client,
-) *ProjectCommand {
+) *ProjectsCommand {
 
 	// Create the new command.
-	cmd := &ProjectCommand{
-		ParentCommand: ParentCommand[ProjectOptions]{
-			BasicCommand: BasicCommand[ProjectOptions]{
+	cmd := &ProjectsCommand{
+		ParentCommand: ParentCommand[ProjectsOptions]{
+			BasicCommand: BasicCommand[ProjectsOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -134,7 +134,7 @@ func NewProjectCommand(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectCommand) Run(args []string) error {
+func (cmd *ProjectsCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.

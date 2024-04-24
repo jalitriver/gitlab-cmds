@@ -1,4 +1,4 @@
-// This file provides the implementation for the "project list"
+// This file provides the implementation for the "projects list"
 // command which optionally recursively lists projects in a group
 // where the listed projects are selected by a regular expression.
 
@@ -16,7 +16,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectListOptions
+// ProjectsListOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -28,8 +28,8 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectListOptions are the options needed by this command.
-type ProjectListOptions struct {
+// ProjectsListOptions are the options needed by this command.
+type ProjectsListOptions struct {
 
 	// Expr is the regular expression that filters the projects.
 	// Defaults to "".
@@ -43,9 +43,9 @@ type ProjectListOptions struct {
 	Recursive bool `xml:"recursive"`
 }
 
-// Initialize initializes this ProjectListOptions instance so it can be
+// Initialize initializes this ProjectsListOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *ProjectListOptions) Initialize(flags *flag.FlagSet) {
+func (opts *ProjectsListOptions) Initialize(flags *flag.FlagSet) {
 
 	// --expr
 	flags.StringVar(&opts.Expr, "expr", opts.Expr,
@@ -65,28 +65,28 @@ func (opts *ProjectListOptions) Initialize(flags *flag.FlagSet) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectListCommand
+// ProjectsListCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectListCommand implements the "project list" command which
+// ProjectsListCommand implements the "projects list" command which
 // optionally recursively lists projects in a group where the listed
 // projects are selected by a regular expression.
-type ProjectListCommand struct {
+type ProjectsListCommand struct {
 
 	// Embed the Command members.
-	GitlabCommand[ProjectListOptions]
+	GitlabCommand[ProjectsListOptions]
 }
 
 // Usage prints the usage message to the output writer.  If err is not
 // nil, it will be printed before the main output.
-func (cmd *ProjectListCommand) Usage(out io.Writer, err error) {
+func (cmd *ProjectsListCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] project list [subcmd_options]\n",
+		"Usage: %s [global_options] projects list [subcmd_options]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    List projects recursively.\n")
@@ -102,17 +102,17 @@ func (cmd *ProjectListCommand) Usage(out io.Writer, err error) {
 	os.Exit(0)
 }
 
-// NewProjectListCommand returns a new and initialized ProjectListCommand instance.
-func NewProjectListCommand(
+// NewProjectsListCommand returns a new and initialized ProjectsListCommand instance.
+func NewProjectsListCommand(
 	name string,
-	opts *ProjectListOptions,
+	opts *ProjectsListOptions,
 	client *gitlab.Client,
-) *ProjectListCommand {
+) *ProjectsListCommand {
 
 	// Create the new command.
-	cmd := &ProjectListCommand{
-		GitlabCommand: GitlabCommand[ProjectListOptions]{
-			BasicCommand: BasicCommand[ProjectListOptions]{
+	cmd := &ProjectsListCommand{
+		GitlabCommand: GitlabCommand[ProjectsListOptions]{
+			BasicCommand: BasicCommand[ProjectsListOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -131,7 +131,7 @@ func NewProjectListCommand(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectListCommand) Run(args []string) error {
+func (cmd *ProjectsListCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.

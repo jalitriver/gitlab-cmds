@@ -3,9 +3,9 @@
 // If you need to add a new subcommand, do the following:
 //
 //   1) Create the new subcommand similar to
-//      cmd/internal/commands/project_command.go if the subcommand
+//      cmd/internal/commands/projects_command.go if the subcommand
 //      will have its own set of subcommands or similar to
-//      cmd/internal/commands/project_list_command.go if the
+//      cmd/internal/commands/projects_list_command.go if the
 //      subcommand will actually do something.
 //
 //   2) Add the resulting new options struct to the Options struct
@@ -37,9 +37,9 @@ import (
 // GlobalCommand when configuring its subcommands.  Each member of
 // Options represents a subcommand that can be directly invoked by
 // GlobalCommand.  For example, if a subcommand is invoked by another
-// subcommand (e.g. "glcli project list"), the subcommand options
-// (i.e., ProjectListOptions) will be present in their parent
-// subcommand options (i.e., ProjectOptions) which in turn will be
+// subcommand (e.g. "glcli projects list"), the subcommand options
+// (i.e., ProjectsListOptions) will be present in their parent
+// subcommand options (i.e., ProjectsOptions) which in turn will be
 // present in this data structure (i.e. Options).
 type Options struct {
 
@@ -49,8 +49,8 @@ type Options struct {
 	// Global Options
 	GlobalOpts GlobalOptions `xml:"global-options"`
 
-	// Options for the "project" command.
-	ProjectOpts ProjectOptions `xml:"project-options"`
+	// Options for the "projects" command.
+	ProjectsOpts ProjectsOptions `xml:"projects-options"`
 }
 
 // LoadFromXMLFile loads options from the XML file.
@@ -285,7 +285,8 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Usage: %s [global_options] subcmd [subcmd_options]\n", cmd.name)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "    Commands for administering a Gitlab server.\n")
+	fmt.Fprintf(out, "    Commands for administering a Gitlab server.  Where possible\n")
+	fmt.Fprintf(out, "    command nesting mirrors the nesting in Gitlab's REST API.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Global Options:\n")
 	fmt.Fprintf(out, "\n")
@@ -325,9 +326,9 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 // instantiated, but the Usage() command needs a list of subcommands
 // which it can always get from the cmd.generators.
 func (cmd *GlobalCommand) addSubcmdGenerators() {
-	cmd.generators["project"] = func(client *gitlab.Client) Runner {
-		return NewProjectCommand(
-			"project", &cmd.allOpts.ProjectOpts, client)
+	cmd.generators["projects"] = func(client *gitlab.Client) Runner {
+		return NewProjectsCommand(
+			"projects", &cmd.allOpts.ProjectsOpts, client)
 	}
 }
 

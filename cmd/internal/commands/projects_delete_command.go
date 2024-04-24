@@ -1,4 +1,4 @@
-// This file provides the implementation for the "project delete"
+// This file provides the implementation for the "projects delete"
 // command which optionally deletes projects recursively (or not)
 // whose name matchs a regular expression.
 
@@ -16,7 +16,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectDeleteOptions
+// ProjectsDeleteOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -28,8 +28,8 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectDeleteOptions are the options needed by this command.
-type ProjectDeleteOptions struct {
+// ProjectsDeleteOptions are the options needed by this command.
+type ProjectsDeleteOptions struct {
 
 	// DryRun should cause the command to print what it would do
 	// instead of actually doing it.  Defaults to false.
@@ -47,9 +47,9 @@ type ProjectDeleteOptions struct {
 	Recursive bool `xml:"recursive"`
 }
 
-// Initialize initializes this ProjectDeleteOptions instance so it can be
+// Initialize initializes this ProjectsDeleteOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *ProjectDeleteOptions) Initialize(flags *flag.FlagSet) {
+func (opts *ProjectsDeleteOptions) Initialize(flags *flag.FlagSet) {
 
 	// -n
 	flag.BoolVar(&opts.DryRun, "n", opts.DryRun,
@@ -77,28 +77,28 @@ func (opts *ProjectDeleteOptions) Initialize(flags *flag.FlagSet) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectDeleteCommand
+// ProjectsDeleteCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectDeleteCommand implements the "project delete" command which
+// ProjectsDeleteCommand implements the "projects delete" command which
 // optionally recursively deletes projects in a group where the
 // deleted projects are selected by a regular expression.
-type ProjectDeleteCommand struct {
+type ProjectsDeleteCommand struct {
 
 	// Embed the Command members.
-	GitlabCommand[ProjectDeleteOptions]
+	GitlabCommand[ProjectsDeleteOptions]
 }
 
 // Usage prints the usage message to the output writer.  If err is not
 // nil, it will be printed before the main output.
-func (cmd *ProjectDeleteCommand) Usage(out io.Writer, err error) {
+func (cmd *ProjectsDeleteCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] project delete [subcmd_options]\n",
+		"Usage: %s [global_options] projects delete [subcmd_options]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    Deletes projects recursively.\n")
@@ -114,17 +114,18 @@ func (cmd *ProjectDeleteCommand) Usage(out io.Writer, err error) {
 	os.Exit(0)
 }
 
-// NewProjectDeleteCommand returns a new and initialized ProjectDeleteCommand instance.
-func NewProjectDeleteCommand(
+// NewProjectsDeleteCommand returns a new, initialized
+// ProjectsDeleteCommand instance.
+func NewProjectsDeleteCommand(
 	name string,
-	opts *ProjectDeleteOptions,
+	opts *ProjectsDeleteOptions,
 	client *gitlab.Client,
-) *ProjectDeleteCommand {
+) *ProjectsDeleteCommand {
 
 	// Create the new command.
-	cmd := &ProjectDeleteCommand{
-		GitlabCommand: GitlabCommand[ProjectDeleteOptions]{
-			BasicCommand: BasicCommand[ProjectDeleteOptions]{
+	cmd := &ProjectsDeleteCommand{
+		GitlabCommand: GitlabCommand[ProjectsDeleteOptions]{
+			BasicCommand: BasicCommand[ProjectsDeleteOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -194,7 +195,7 @@ func DeleteProjects(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectDeleteCommand) Run(args []string) error {
+func (cmd *ProjectsDeleteCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.

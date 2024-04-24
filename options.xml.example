@@ -27,7 +27,7 @@
     ======================================================================== -->
 
   <!-- Options for the "project" command. -->
-  <project-options>
+  <projects-options>
 
     <!-- Options for the "project create-random" command. -->
     <create-random-options>
@@ -86,6 +86,6 @@
 
     </list-options>
 
-  </project-options>
+  </projects-options>
 
 </options>
