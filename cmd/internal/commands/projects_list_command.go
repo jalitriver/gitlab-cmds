@@ -102,7 +102,8 @@ func (cmd *ProjectsListCommand) Usage(out io.Writer, err error) {
 	os.Exit(0)
 }
 
-// NewProjectsListCommand returns a new and initialized ProjectsListCommand instance.
+// NewProjectsListCommand returns a new, initialized
+// ProjectsListCommand instance.
 func NewProjectsListCommand(
 	name string,
 	opts *ProjectsListOptions,
