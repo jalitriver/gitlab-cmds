@@ -79,10 +79,10 @@ func (opts *Options) LoadFromXMLFile(fname string) error {
 //
 // NOTE: We cannot put these options in the Command struct because the
 // way it works is the options are (eventually) embedded in the single
-// large "Options" data structure in main.go so that all of the
-// options can be read from a single options.xml file.  Because we
-// want the main "Options" data structure in main.go to be lean, we
-// factor out our options into their own data structure.
+// large "Options" data structure (above) so that all of the options
+// can be read from a single options.xml file.  Because we want the
+// main "Options" data structure (above) to be lean, we factor out our
+// options into their own data structure.
 //
 
 // GlobalOptions are the options needed by this command.
