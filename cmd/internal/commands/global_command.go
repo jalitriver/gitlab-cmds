@@ -130,17 +130,25 @@ func (opts *GlobalOptions) Initialize(flags *flag.FlagSet) {
 		"base URL for Gitlab REST endpoints which should not include "+
 			"the \"api/v4\" suffix")
 
+	// -h
+	flags.BoolVar(&opts.Help, "h", opts.Help,
+		"print help")
+
 	// --help
-	flags.BoolVar(&opts.Help, "h", opts.Help, "print help")
-	flags.BoolVar(&opts.Help, "help", opts.Help, "print help")
+	flags.BoolVar(&opts.Help, "help", opts.Help,
+		"print help")
 
 	// --options
 	flags.StringVar(&opts.OptionsFileName, "options", opts.OptionsFileName,
 		"name of XML file with default options")
 
+	// -v
+	flags.BoolVar(&opts.Version, "v", opts.Version,
+		"print version")
+
 	// --version
-	flags.BoolVar(&opts.Version, "v", opts.Version, "print version")
-	flags.BoolVar(&opts.Version, "version", opts.Version, "print version")
+	flags.BoolVar(&opts.Version, "version", opts.Version,
+		"print version")
 }
 
 ////////////////////////////////////////////////////////////////////////
