@@ -27,8 +27,8 @@ type Runner interface {
 
 // Command holds common data needed for each command.  The
 // parameterized type T should be the Options struct for the command.
-// For example, BasicCommand[ProjectOptions] configures this command
-// to work with the options for the "project" command.  Also see
+// For example, BasicCommand[FooOptions] configures this command to
+// work with the options for the "foo" command.  Also see
 // [GitlabCommand] and [ParentCommand].
 type BasicCommand[T any] struct {
 
@@ -54,11 +54,11 @@ type BasicCommand[T any] struct {
 // GitlabCommand
 ////////////////////////////////////////////////////////////////////////
 
-// GitlabCommand is a Command with a Gitlab communications client.
-// The parameterized type T should be the Options struct for the
-// command.  For example, GitlabCommand[ProjectListOptions] configures
-// this command to work with the options for the "project list"
-// command.
+// GitlabCommand is a BasicCommand with a Gitlab communications
+// client.  The parameterized type T should be the Options struct for
+// the command.  For example, GitlabCommand[ProjectListOptions]
+// configures this command to work with the options for the "project
+// list" command.
 type GitlabCommand[T any] struct {
 
 	// Embed BasicCommand members.
@@ -72,9 +72,9 @@ type GitlabCommand[T any] struct {
 // ParentCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ParentCommand is a Command with a subcommand map that maps the name
-// of subcommands to their Runner.  The parameterized type T should be
-// the Options struct for the command.  For example,
+// ParentCommand is a BasicCommand with a subcommand map that maps the
+// name of subcommands to their Runner.  The parameterized type T
+// should be the Options struct for the command.  For example,
 // ParentCommand[ProjectOptions] configures this command to work with
 // the options for the "project" command.
 type ParentCommand[T any] struct {
