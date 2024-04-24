@@ -111,7 +111,7 @@ func NewProjectListCommand(
 	cmd := &ProjectListCommand{
 		GitlabCommand: GitlabCommand[ProjectListOptions]{
 			BasicCommand: BasicCommand[ProjectListOptions]{
-				commandName: name,
+				name: name,
 				flags:       flag.NewFlagSet(name, flag.ExitOnError),
 				options:     opts,
 			},

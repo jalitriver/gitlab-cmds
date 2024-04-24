@@ -180,7 +180,7 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "Usage: %s [global_options] subcmd [subcmd_options]\n", cmd.commandName)
+	fmt.Fprintf(out, "Usage: %s [global_options] subcmd [subcmd_options]\n", cmd.name)
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    Commands for administering a Gitlab server.\n")
 	fmt.Fprintf(out, "\n")
@@ -254,7 +254,7 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 	cmd := &GlobalCommand{
 		ParentCommand: ParentCommand[GlobalOptions]{
 			BasicCommand: BasicCommand[GlobalOptions]{
-				commandName: name,
+				name: name,
 				flags:       flag.NewFlagSet(name, flag.ExitOnError),
 				options:     &allOpts.GlobalOpts,
 			},
@@ -303,7 +303,7 @@ func (cmd *GlobalCommand) Run(args []string) error {
 
 	// Print the version if requested by the user.
 	if cmd.options.Version {
-		fmt.Printf("%s v%s\n", cmd.commandName, cmd.version)
+		fmt.Printf("%s v%s\n", cmd.name, cmd.version)
 		return nil
 	}
 

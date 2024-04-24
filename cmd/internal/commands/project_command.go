@@ -111,7 +111,7 @@ func NewProjectCommand(
 	cmd := &ProjectCommand{
 		ParentCommand: ParentCommand[ProjectOptions]{
 			BasicCommand: BasicCommand[ProjectOptions]{
-				commandName: name,
+				name: name,
 				flags:       flag.NewFlagSet(name, flag.ExitOnError),
 				options:     opts,
 			},

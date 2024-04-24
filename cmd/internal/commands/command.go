@@ -33,7 +33,7 @@ type Runner interface {
 type BasicCommand[T any] struct {
 
 	// Name is the name of this command.
-	commandName string
+	name string
 
 	// Flagset is used for parsing the command-line flags specific to
 	// this command.
