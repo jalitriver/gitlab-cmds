@@ -9,6 +9,10 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+////////////////////////////////////////////////////////////////////////
+// Groups
+////////////////////////////////////////////////////////////////////////
+
 // GroupFullPaths returns just the full paths for the groups.
 func GroupFullPaths(groups []*gitlab.Group) []string {
 	result := make([]string, 0, len(groups))
@@ -59,8 +63,12 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 	return nil, err
 }
 
+////////////////////////////////////////////////////////////////////////
+// Projects
+////////////////////////////////////////////////////////////////////////
+
 // ForEachProjectInGroup iterates over the projects in a group and
-// (recursively or not) calls the function f once for each project
+// recursively or not) calls the function f once for each project
 // whose full path name matches the regular expression.  An empty
 // regular expression matches any string.  The function f must return
 // true and no error to indicate that it wants to continue being
@@ -129,7 +137,7 @@ func ForEachProjectInGroup(
 	return nil
 }
 
-// GetAllProjects returns all the projects in a group (recursively or
+// GetAllProjects returns all the projects in a group recursively (or
 // not) for each project whose full path name matches the regular
 // expression.  An empty regular expression matches any string.
 // Prefer ForEachProjectInGroup() over this function to avoid the long
@@ -164,4 +172,60 @@ func GetAllProjects(
 	}
 
 	return result, nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// Approval Rules
+////////////////////////////////////////////////////////////////////////
+
+// ForEachApprovalRuleInProject iterates over the approval rules in a
+// project and calls the function f once for each approval rule.  The
+// function f must return true and no error to indicate that it wants
+// to continue being called with the remaining projects.  If f returns
+// an error, it will be forwarded to the caller as the error return
+// value for this function.
+func ForEachApprovalRuleInProject(
+	s *gitlab.ProjectsService,
+	p *gitlab.Project,
+	f func(
+		project *gitlab.Project,
+		approvalRule *gitlab.ProjectApprovalRule,
+	) (bool, error),
+) error {
+
+	// Set up the options for ListGroupProjects().
+	opts := gitlab.GetProjectApprovalRulesListsOptions{}
+	opts.Page = 1
+	///opts.PerPage = 100
+
+	// Iterate over each page of approval rules.
+	for {
+
+		// Get the next page of approval rules.
+		rules, resp, err := s.GetProjectApprovalRules(p.ID, &opts)
+		if err != nil {
+			return fmt.Errorf("ForEachApprovalRuleInProject: %w\n", err)
+		}
+
+		// Invoke the callbacks.
+		for _, rule := range rules {
+			more, err := f(p, rule)
+			if err != nil {
+				return err
+			}
+			if !more {
+				return nil
+			}
+		}
+
+		// Check if done.
+		if resp.NextPage == 0 {
+			break
+		}
+
+		// Move to the next page.
+		opts.Page = resp.NextPage
+	}
+
+	return nil
 }
