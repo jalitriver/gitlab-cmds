@@ -1,5 +1,5 @@
-// This file provides the implementation for the "projects" command
-// which provides project related subcommands.
+// This file provides the implementation for the "projects approval-rules"
+// command which provides project related subcommands.
 //
 // If you need to add a new subcommand, do the following:
 //
@@ -29,7 +29,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectsOptions
+// ProjectsApprovalRulesOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -41,49 +41,44 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectsOptions are the options needed by this command.
-type ProjectsOptions struct {
+// ProjectsApprovalRulesOptions are the options needed by this command.
+type ProjectsApprovalRulesOptions struct {
 
-	ProjectsApprovalRulesOpts ProjectsApprovalRulesOptions `xml:"approval-rules-options"`
-
-	ProjectsCreateRandomOpts ProjectsCreateRandomOptions `xml:"create-random-options"`
-
-	ProjectsDeleteOpts ProjectsDeleteOptions `xml:"delete-options"`
-
-	ProjectsListOpts ProjectsListOptions `xml:"list-options"`
+	/// TODO
+	///ProjectsListOpts ProjectsListOptions `xml:"list-options"`
 }
 
-// Initialize initializes this ProjectsOptions instance so it can be
+// Initialize initializes this ProjectsApprovalRulesOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *ProjectsOptions) Initialize(flags *flag.FlagSet) {
+func (opts *ProjectsApprovalRulesOptions) Initialize(flags *flag.FlagSet) {
 	// empty
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectsCommand
+// ProjectsApprovalRulesCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectsCommand provides subcommands for Gitlab project related
+// ProjectsApprovalRulesCommand provides subcommands for Gitlab project related
 // maintenance.
-type ProjectsCommand struct {
+type ProjectsApprovalRulesCommand struct {
 
 	// Embed the Command members.
-	ParentCommand[ProjectsOptions]
+	ParentCommand[ProjectsApprovalRulesOptions]
 }
 
 // Usage prints the main usage message to the output writer.  If
 // err is not nil, it will be printed before the main output.
-func (cmd *ProjectsCommand) Usage(out io.Writer, err error) {
+func (cmd *ProjectsApprovalRulesCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] projects [subcmd]\n",
+		"Usage: %s [global_options] projects approval-rules [subcmd]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "    Command for administering a Gitlab projects.\n")
+	fmt.Fprintf(out, "    Command for administering approval rules for Gitlab projects.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Subcommands:\n")
 	fmt.Fprintf(out, "\n")
@@ -98,29 +93,22 @@ func (cmd *ProjectsCommand) Usage(out io.Writer, err error) {
 }
 
 // addSubcmds adds the subcommands for this command.
-func (cmd *ProjectsCommand) addSubcmds(client *gitlab.Client) {
-	cmd.subcmds["approval-rules"] = NewProjectsApprovalRulesCommand(
-		"approval-rules", &cmd.options.ProjectsApprovalRulesOpts, client)
-	cmd.subcmds["create-random"] = NewProjectsCreateRandomCommand(
-		"create-random", &cmd.options.ProjectsCreateRandomOpts, client)
-	cmd.subcmds["delete"] = NewProjectsDeleteCommand(
-		"delete", &cmd.options.ProjectsDeleteOpts, client)
-	cmd.subcmds["list"] = NewProjectsListCommand(
-		"list", &cmd.options.ProjectsListOpts, client)
+func (cmd *ProjectsApprovalRulesCommand) addSubcmds(client *gitlab.Client) {
+	/// TODO
 }
 
-// NewProjectsCommand returns a new, initialized ProjectsCommand
-// instance having the specified name.
-func NewProjectsCommand(
+// NewProjectsApprovalRulesCommand returns a new, initialized
+// ProjectsApprovalRulesCommand instance having the specified name.
+func NewProjectsApprovalRulesCommand(
 	name string,
-	opts *ProjectsOptions,
+	opts *ProjectsApprovalRulesOptions,
 	client *gitlab.Client,
-) *ProjectsCommand {
+) *ProjectsApprovalRulesCommand {
 
 	// Create the new command.
-	cmd := &ProjectsCommand{
-		ParentCommand: ParentCommand[ProjectsOptions]{
-			BasicCommand: BasicCommand[ProjectsOptions]{
+	cmd := &ProjectsApprovalRulesCommand{
+		ParentCommand: ParentCommand[ProjectsApprovalRulesOptions]{
+			BasicCommand: BasicCommand[ProjectsApprovalRulesOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -142,7 +130,7 @@ func NewProjectsCommand(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectsCommand) Run(args []string) error {
+func (cmd *ProjectsApprovalRulesCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.
