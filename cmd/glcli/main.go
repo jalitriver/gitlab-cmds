@@ -19,6 +19,15 @@ var (
 func main() {
 	var err error
 
+	// Sanity check.
+	if len(os.Args) < 1 {
+		fmt.Fprintf(
+			os.Stderr,
+			"\n*** Error: invalid command-line arguments: %v\n\n",
+			os.Args)
+		os.Exit(1)
+	}
+
 	// Find the base name for the executable.
 	basename := filepath.Base(os.Args[0])
 

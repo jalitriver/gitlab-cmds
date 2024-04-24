@@ -108,6 +108,10 @@ type GlobalOptions struct {
 	// file in the options.xml file).  Defaults to "options.xml".
 	OptionsFileName string `xml:"-"`
 
+	// ShowOptions is whether to print options as XML and immediately
+	// exit.  Defaults to false.
+	ShowOptions bool  `xml:"-"`
+
 	// Version is whether the user wants the version.  Defaults to false.
 	Version bool `xml:"version"`
 }
@@ -132,23 +136,113 @@ func (opts *GlobalOptions) Initialize(flags *flag.FlagSet) {
 
 	// -h
 	flags.BoolVar(&opts.Help, "h", opts.Help,
-		"print help")
+		"show help")
 
 	// --help
 	flags.BoolVar(&opts.Help, "help", opts.Help,
-		"print help")
+		"show help")
 
 	// --options
 	flags.StringVar(&opts.OptionsFileName, "options", opts.OptionsFileName,
 		"name of XML file with default options")
 
+	// --show-options
+	flags.BoolVar(&opts.ShowOptions, "show-options", opts.ShowOptions,
+		"show options")
+
 	// -v
 	flags.BoolVar(&opts.Version, "v", opts.Version,
-		"print version")
+		"show version")
 
 	// --version
 	flags.BoolVar(&opts.Version, "version", opts.Version,
-		"print version")
+		"show version")
+}
+
+// GetOptionsXMLFileName returns the location of the options.xml file
+// as specified on the command-line arguments or, if not set as a
+// command-line argument, the default location.
+func GetOptionsXMLFileName(args []string) (string, error) {
+	var err error
+
+	// Create a local set of options.
+	opts := new(Options)
+
+	// Create a local flag.FlagSet to parse the command-line arguments.
+	flags := flag.NewFlagSet("local", flag.ExitOnError)
+
+	// Set up the hard-coded default for the GlobalOptions and prepare
+	// to parse the command-line arguments.
+	opts.GlobalOpts.Initialize(flags)
+
+	// Parse the command-line options to determine the correct
+	// location of the options.xml file.
+	err = flags.Parse(args)
+	if err != nil {
+		return "", err
+	}
+
+	return opts.GlobalOpts.OptionsFileName, nil
+}
+
+// Peek at the global options which helps to resolve two circular
+// dependencies.  Values for program options come from the following
+// three locations in increasing order of priority:
+//
+//   1) from the Initialize() calls for each specific data structure
+//      which establishes defaults that are hard-coded
+//
+//   2) from the options.xml file
+//
+//   3) from the command-line
+//
+// The first circular dependency is that we need to create all of the
+// subcommands which call Initialize() to establish the hard-coded
+// defaults, but we cannot create the subcommands until after parsing
+// options.xml and the command-line to determine the correct type of
+// gitlab.Client to pass into the subcommands.
+//
+// The second circular dependency is that we need to read from
+// options.xml before parsing the command-line arguments to establish
+// defaults for the program options, but we also need to parse the
+// command-line arguments first to determine if the user specified an
+// alternative location for the options.xml file.
+func PeakAtGlobalOptions(args []string) (*GlobalOptions, error) {
+	var err error
+
+	// Create a local set of options.
+	opts := new(Options)
+
+	// Create a local flag.FlagSet our local options.
+	flags := flag.NewFlagSet("local", flag.ExitOnError)
+
+	// Set up the hard-coded default for the GlobalOptions.
+	opts.GlobalOpts.Initialize(flags)
+
+	// Determine the location of the options.xml file.  This breaks
+	// the second circular dependency described in the comment for this
+	// function because GetOptionsXMLFileName() uses a different
+	// Options instance to parse the command-line options.
+	optionsFileName, err := GetOptionsXMLFileName(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load the options from the XML file to override the hard-coded defaults.
+	if optionsFileName != "" {
+		err = opts.LoadFromXMLFile(optionsFileName)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Parse of the command-line options to override options.xml.
+	err = flags.Parse(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return &opts.GlobalOpts, nil
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -172,10 +266,7 @@ type GlobalCommand struct {
 	// generators is a slice of functions that generate the runnable
 	// subcommands.  (This has nothing to do with Python-style
 	// generators.)  See the comments for addSubcmdGenerators().
-	generators map[string]func() Runner
-
-	// client is the Gitlab communication client
-	client *gitlab.Client
+	generators map[string]func(client *gitlab.Client) Runner
 
 	// version is the program version needed for the --version option.
 	version string
@@ -234,18 +325,18 @@ func (cmd *GlobalCommand) Usage(out io.Writer, err error) {
 // Runnable.  Thus, if Usage() is called early it will still have the
 // complete list of subcommands to display.
 func (cmd *GlobalCommand) addSubcmdGenerators() {
-	cmd.generators["project"] = func() Runner {
+	cmd.generators["project"] = func(client *gitlab.Client) Runner {
 		return NewProjectCommand(
-			"project", &cmd.allOpts.ProjectOpts, cmd.client)
+			"project", &cmd.allOpts.ProjectOpts, client)
 	}
 }
 
 // generateSubcmds generates the subcommands from the list of
 // generators created by addSubcmdGenerators().  See the comments for
 // addSubcmdGenerators().
-func (cmd *GlobalCommand) generateSubcmds() {
+func (cmd *GlobalCommand) generateSubcmds(client *gitlab.Client) {
 	for cmdName, g := range cmd.generators {
-		cmd.subcmds[cmdName] = g()
+		cmd.subcmds[cmdName] = g(client)
 	}
 }
 
@@ -269,7 +360,7 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 			subcmds: make(map[string]Runner),
 		},
 		allOpts:    allOpts,
-		generators: make(map[string]func() Runner),
+		generators: make(map[string]func(client *gitlab.Client) Runner),
 		version:    version,
 	}
 
@@ -290,64 +381,80 @@ func NewGlobalCommand(name string, version string) *GlobalCommand {
 func (cmd *GlobalCommand) Run(args []string) error {
 	var err error
 	var authInfo authinfo.AuthInfo
+	var client *gitlab.Client
 
-	// This is the first time we parse the global command-line
-	// options.  We are primarily looking for an alternative location
-	// for the options.xml file which might have been specified on the
-	// command line.  Note that we only need to parse the "global"
-	// part of the command-line (i.e., the part that preceeds the
-	// first subcommand).  Thus, we do not need to invoke the Parse()
-	// methods of any of flag.FlagSet objects for the subcommands.
-	err = cmd.flags.Parse(args)
+	// Peek at the global options which helps to resolve two circular
+	// dependencies.  See the comments at PeekAtGlobalOptions() for more.
+	globalOpts, err := PeakAtGlobalOptions(args)
 	if err != nil {
 		return err
 	}
 
 	// Print help and then exit if requested by the user.
-	if cmd.options.Help {
+	if globalOpts.Help {
 		cmd.Usage(os.Stdout, nil)
 		// not reached
 	}
 
 	// Print the version if requested by the user.
-	if cmd.options.Version {
+	if globalOpts.Version {
 		fmt.Printf("%s v%s\n", cmd.name, cmd.version)
 		return nil
 	}
 
-	// Load options from XML file.
-	if cmd.options.OptionsFileName != "" {
-		err = cmd.allOpts.LoadFromXMLFile(cmd.options.OptionsFileName)
+	// Load the authentication information from file.  This breaks the
+	// first circular dependency described in the comments for
+	// PeakAtGlobalOptions() by using the temporary, light-weight
+	// globalOpts returned by PeakAtGlobalOptions() to create the
+	// authentication information from the auth.xml file.  This allows
+	// us to create the gitlab.Client next and then create the
+	// subcommands by passing in the gitlab.Client.  Thus, the
+	// subcommands will have the gitlab.Client they need and be fully
+	// ready parse the command-line options passed into their Run()
+	// methods.
+	authInfo, err = authinfo.Load(globalOpts.AuthFileName)
+	if err != nil {
+		return fmt.Errorf(
+			"LoadAuthInfo: Unable to load authentication information "+
+				"from file %v: %w\n", globalOpts.AuthFileName, err)
+	}
+
+	// Create the Gitlab client based on the authentication
+	// information provided by the user.
+	client, err = authInfo.CreateGitlabClient(
+		gitlab.WithBaseURL(globalOpts.BaseURL))
+	if err != nil {
+		return fmt.Errorf("CreateGitlabClient: %w\n", err)
+	}
+
+	// Generate the subcommands.  This establishes hard-coded defaults
+	// for the options.
+	cmd.generateSubcmds(client)
+
+	// Load options from XML file.  This overrides the hard-coded
+	// defaults.  This also breaks the second circular dependency
+	// described in the comments for PeakAtGlobalOptions() by using
+	// the location of options.xml from the light-weight globalOpts
+	// returned by PeekAtGlobalOptions().
+	if globalOpts.OptionsFileName != "" {
+		err = cmd.allOpts.LoadFromXMLFile(globalOpts.OptionsFileName)
 		if err != nil {
 			cmd.Usage(os.Stderr, err)
 			// not reached
 		}
 	}
 
-	// Load the authentication information from file.
-	authInfo, err = authinfo.Load(cmd.options.AuthFileName)
-	if err != nil {
-		return fmt.Errorf(
-			"LoadAuthInfo: Unable to load authentication information "+
-				"from file %v: %w\n", cmd.options.AuthFileName, err)
-	}
-
-	// Create the Gitlab client based on the authentication
-	// information provided by the user.
-	cmd.client, err = authInfo.CreateGitlabClient(
-		gitlab.WithBaseURL(cmd.options.BaseURL))
-	if err != nil {
-		return fmt.Errorf("CreateGitlabClient: %w\n", err)
-	}
-
-	// Generate the subcommands.
-	cmd.generateSubcmds()
-
-	// Override the options from the XML file with global options from
-	// the command-line arguments.
+	// Parse the command-line arguments.  This overrides options.xml
 	err = cmd.flags.Parse(args)
 	if err != nil {
 		return err
+	}
+
+	// Show options if requested.
+	if cmd.allOpts.GlobalOpts.ShowOptions {
+		encoder := xml.NewEncoder(os.Stdout)
+		encoder.Indent("", "  ")
+		return encoder.Encode(cmd.allOpts)
 	}
 
 	// Dispatch the subcommand specified by the remaining arguments.
