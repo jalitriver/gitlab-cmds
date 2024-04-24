@@ -47,4 +47,9 @@ GitLab Commands
 
 ## Inverting --dry-run Logic
 
-By default, all commands which can alter Gitlab will alter Gitlab unless the `--dry-run` flag is set.  It is possible to invert this logic so that --dry-run is enabled by default by changing the dry-run options in options.xml to `true`.  You can then use `--dry-run=false` on the command line when you are ready to execute the command for real.
+By default, all commands which can alter Gitlab will alter Gitlab
+unless the `--dry-run` flag is set.  It is possible to invert this
+logic so that --dry-run is enabled by default by changing the dry-run
+options in options.xml to `true`.  You can then use `--dry-run=false`
+on the command line when you are ready to execute the command for
+real.
