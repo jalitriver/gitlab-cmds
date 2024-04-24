@@ -90,25 +90,25 @@ type GlobalOptions struct {
 
 	// AuthFileName is an alternative file name for auth.xml which
 	// holds authentication information like an OAuth token or
-	// personal access token.
+	// personal access token.  Defaults to "auth.xml".
 	AuthFileName string `xml:"auth-file-name"`
 
 	// BaseURL is the base URL for connecting to Gitlab REST
-	// endpoints.  It does not include the "api/v4" part and defaults
-	// to the "https://gitlab.com/" URL.
+	// endpoints.  It does not include the "api/v4" part.  Defaults to
+	// "https://gitlab.com/".
 	BaseURL string `xml:"base-url"`
 
-	// Help is whether the user wants help.
+	// Help is whether the user wants help.  Defaults to false.
 	Help bool `xml:"help"`
 
 	// OptionsFileName is an alternative file name for options.xml.
 	// Note that the user can only change this option on the command
 	// line, not in the options.xml file (because it leads to circular
 	// logic having the user specify the location of the options.xml
-	// file in the options.xml file).
+	// file in the options.xml file).  Defaults to "options.xml".
 	OptionsFileName string `xml:"-"`
 
-	// Version is whether the user wants the version.
+	// Version is whether the user wants the version.  Defaults to false.
 	Version bool `xml:"version"`
 }
 

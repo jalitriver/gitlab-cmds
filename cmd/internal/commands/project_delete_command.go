@@ -32,16 +32,18 @@ import (
 type ProjectDeleteOptions struct {
 
 	// DryRun should cause the command to print what it would do
-	// instead of actually doing it.
+	// instead of actually doing it.  Defaults to false.
 	DryRun bool `xml:"dry-run"`
 
 	// Expr is the regular expression that filters the projects.
+	// Defaults to "".
 	Expr string `xml:"expr"`
 
-	// Group for which projects will be listed.
+	// Group for which projects will be listed.  Defaults to "".
 	Group string `xml:"group"`
 
-	// Recursive controls whether the projects are deleted recursively.
+	// Recursive controls whether the projects are deleted
+	// recursively.  Defaults to false.
 	Recursive bool `xml:"recursive"`
 }
 

@@ -32,19 +32,19 @@ import (
 type ProjectCreateRandomOptions struct {
 
 	// DryRun should cause the command to print what it would do
-	// instead of actually doing it.
+	// instead of actually doing it.  Defaults to false.
 	DryRun bool `xml:"dry-run"`
 
 	// ParentGroup is the group where projects will be created.  The
-	// parent group must already exist.
+	// parent group must already exist.  Defaults to "".
 	ParentGroup string `xml:"parent-group"`
 
 	// ProjectBaseName is the base name all new project will have.
 	// The full name for the project will include random characters
-	// after the base name.
+	// after the base name.  Defaults to "".
 	ProjectBaseName string `xml:"project-base-name"`
 
-	// ProjectCount is the number of projects to create.
+	// ProjectCount is the number of projects to create.  Defaults to 0.
 	ProjectCount uint64 `xml:"project-count"`
 }
 

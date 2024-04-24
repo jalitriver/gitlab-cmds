@@ -32,12 +32,14 @@ import (
 type ProjectListOptions struct {
 
 	// Expr is the regular expression that filters the projects.
+	// Defaults to "".
 	Expr string `xml:"expr"`
 
-	// Group for which projects will be listed.
+	// Group for which projects will be listed.  Defaults to "".
 	Group string `xml:"group"`
 
 	// Recursive controls whether the projects are listed recursively.
+	// Defaults to false.
 	Recursive bool `xml:"recursive"`
 }
 
