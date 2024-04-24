@@ -136,7 +136,7 @@ func NewProjectsApprovalRulesListCommand(
 	return cmd
 }
 
-func approvalRuleToString(rule *gitlab.ProjectApprovalRule) string {
+func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
 	var result strings.Builder
 
 	// Add rule ID and name.
@@ -183,7 +183,7 @@ func (cmd *ProjectsApprovalRulesListCommand) Run(args []string) error {
 			gitlab_util.ForEachApprovalRuleInProject(
 				cmd.client.Projects, p,
 				func (rule *gitlab.ProjectApprovalRule) (bool, error) {
-					fmt.Printf("    %v\n", approvalRuleToString(rule))
+					fmt.Printf("    %v\n", ApprovalRuleToString(rule))
 					return true, nil					
 				})
 			return true, nil

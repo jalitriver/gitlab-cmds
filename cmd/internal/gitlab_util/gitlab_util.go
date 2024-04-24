@@ -178,6 +178,19 @@ func GetAllProjects(
 // Approval Rules
 ////////////////////////////////////////////////////////////////////////
 
+// ApprovalRulesGetter is an abstraction of GetProjectApprovalRules()
+// in gitlab.ProjectsService which was added so
+// ForEachApprovalRuleInProject() can be tested with requiring a paid
+// Gitlab account because Gitlab CE (the free version of Gitlab) does
+// not support approval rules.
+type ApprovalRulesGetter interface {
+	GetProjectApprovalRules(
+		pid interface{},
+		opt *gitlab.GetProjectApprovalRulesListsOptions,
+		options ...gitlab.RequestOptionFunc,
+	) ([]*gitlab.ProjectApprovalRule, *gitlab.Response, error)
+}
+
 // ForEachApprovalRuleInProject iterates over the approval rules in a
 // project and calls the function f once for each approval rule.  The
 // function f must return true and no error to indicate that it wants
@@ -185,7 +198,7 @@ func GetAllProjects(
 // an error, it will be forwarded to the caller as the error return
 // value for this function.
 func ForEachApprovalRuleInProject(
-	s *gitlab.ProjectsService,
+	s ApprovalRulesGetter /* was *gitlab.ProjectsService */,
 	p *gitlab.Project,
 	f func(
 		approvalRule *gitlab.ProjectApprovalRule,
