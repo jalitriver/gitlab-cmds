@@ -77,7 +77,7 @@ func (cmd *ProjectCommand) Usage(out io.Writer, err error) {
 		"Usage: %s [global_options] project [subcmd]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "    Commands for administering a Gitlab projects.\n")
+	fmt.Fprintf(out, "    Command for administering a Gitlab projects.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Subcommands:\n")
 	fmt.Fprintf(out, "\n")
