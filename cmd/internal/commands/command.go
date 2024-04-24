@@ -25,11 +25,11 @@ type Runner interface {
 // BasicCommand
 ////////////////////////////////////////////////////////////////////////
 
-// Command holds common data needed for each command.  Also see
-// [GitlabCommand] and [ParentCommand].  The parameterized type T
-// should be the Options struct for the command.  For example,
-// BasicCommand[ProjectOptions] configures this command to work with
-// the options for the "project" command.
+// Command holds common data needed for each command.  The
+// parameterized type T should be the Options struct for the command.
+// For example, BasicCommand[ProjectOptions] configures this command
+// to work with the options for the "project" command.  Also see
+// [GitlabCommand] and [ParentCommand].
 type BasicCommand[T any] struct {
 
 	// Name is the name of this command.
