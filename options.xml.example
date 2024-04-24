@@ -23,7 +23,7 @@
   </global-options>
 
   <!-- =====================================================================
-    == XML elements below here can be safely deleted if they are not needed.
+    == XML elements below here can and should be deleted if not being used.
     ======================================================================== -->
 
   <!-- Options for the "project" command. -->
