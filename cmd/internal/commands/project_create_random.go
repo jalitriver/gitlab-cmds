@@ -63,15 +63,15 @@ func (opts *ProjectCreateRandomOptions) Initialize(flags *flag.FlagSet) {
 		"print what it would do instead of actually doing it")
 
 	// --parent-group
-	flags.StringVar(&opts.ParentGroup, "parent-group", "",
+	flags.StringVar(&opts.ParentGroup, "parent-group", opts.ParentGroup,
 		"parent group for new projects")
 
 	// --project-base-name
-	flags.StringVar(&opts.ProjectBaseName, "project-base-name", "",
+	flags.StringVar(&opts.ProjectBaseName, "project-base-name", opts.ProjectBaseName,
 		"base name for new projects")
 
 	// --project-count
-	flags.Uint64Var(&opts.ProjectCount, "project-count", 0,
+	flags.Uint64Var(&opts.ProjectCount, "project-count", opts.ProjectCount,
 		"number of new projects to create")
 }
 
