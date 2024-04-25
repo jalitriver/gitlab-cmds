@@ -37,7 +37,7 @@ import (
 // GlobalCommand when configuring its subcommands.  Each member of
 // Options represents a subcommand that can be directly invoked by
 // GlobalCommand.  For example, if a subcommand is invoked by another
-// subcommand (e.g. "glcli projects list"), the subcommand options
+// subcommand (e.g. "glcmds projects list"), the subcommand options
 // (i.e., ProjectsListOptions) will be present in their parent
 // subcommand options (i.e., ProjectsOptions) which in turn will be
 // present in this data structure (i.e. Options).

@@ -7,7 +7,7 @@ GitLab Commands
 1. Install the binary
 
     ```
-        go install github.com/jalitriver/gitlab-cmds/cmd/glcli@latest
+        go install github.com/jalitriver/gitlab-cmds/cmd/glcmds@latest
     ```
 
 1. Set up your options file which is used to avoid having to enter the
@@ -20,8 +20,8 @@ GitLab Commands
     1. If using a private Gitlab server, edit the options.xml file to
        point to it.
 
-    1. By default, glcli looks in your current directory for
-       options.xml, or you can use `glcli --options <path>` to specify
+    1. By default, glcmds looks in your current directory for
+       options.xml, or you can use `glcmds --options <path>` to specify
        an alternative location.
     
     1. You should always have an options.xml file even if everything
@@ -40,8 +40,8 @@ GitLab Commands
     1. Edit the auth.xml file and uncomment the relevant
        authentication type and add your authentication information.
        
-    1. By default, glcli looks in your current directory for auth.xml,
-       or you can use `glcli --auth <path>` to specify an alternative
+    1. By default, glcmds looks in your current directory for auth.xml,
+       or you can use `glcmds --auth <path>` to specify an alternative
        location.  An alternative location can also be specified in the
        `options.xml` file.
 
