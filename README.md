@@ -48,7 +48,7 @@ GitLab Commands
 ## Managing Lists of Users
 
 The `glcmds users list` command can be used to lookup user IDs from
-names, usernames, or e-mail addresses and output resulting list of
+names, usernames, or e-mail addresses and output the resulting list of
 users to users.xml file.  The users.xml file can then be used as the
 input of other commands that accept a list of users.
 
