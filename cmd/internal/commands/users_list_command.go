@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/string_slice"
@@ -145,8 +146,17 @@ func (cmd *UsersListCommand) Run(args []string) error {
 	// "user" search strings.  If an exact match is found, add them to
 	// the "found" list so we can write them to file before exiting if
 	// necessary.
+	firstWarning := true
 	if len(cmd.options.Users) > 0 {
 		for _, user := range cmd.options.Users {
+			if firstWarning && strings.IndexRune(user, '@') >= 0 {
+				fmt.Fprintf(
+					os.Stderr,
+					"*** Warning: searching by e-mail address has not been "+
+						"verified to work.  If you have problems, try "+
+						"searching by username instead.\n")
+				firstWarning = false
+			}
 			u, err = gitlab_util.FindExactUser(cmd.client.Users, user)
 			if err != nil {
 				return fmt.Errorf("unable to find user: %q\n", user)
