@@ -14,7 +14,7 @@ GitLab Commands
    same command-line options whenever a command is run.
 
     1. Download [options.xml.example](https://raw.githubusercontent.com/jalitriver/gitlab-cmds/master/options.xml.example)
-    
+
     1. cp options.xml.example options.xml
 
     1. If using a private Gitlab server, edit the options.xml file to
@@ -23,7 +23,7 @@ GitLab Commands
     1. By default, glcmds looks in your current directory for
        options.xml, or you can use `glcmds --options <path>` to specify
        an alternative location.
-    
+
     1. You should always have an options.xml file even if everything
        (except for the root tags) is commented out; otherwise, you
        will need to pass `--options ''` to each command invocation to
@@ -34,17 +34,17 @@ GitLab Commands
     1. Download [auth.xml.example](https://raw.githubusercontent.com/jalitriver/gitlab-cmds/master/auth.xml.example).
 
     1. cp auth.xml.example auth.xml
-    
+
     1. chmod 600 auth.xml
-       
+
     1. Edit the auth.xml file and uncomment the relevant
        authentication type and add your authentication information.
-       
+
     1. By default, glcmds looks in your current directory for auth.xml,
        or you can use `glcmds --auth <path>` to specify an alternative
        location.  An alternative location can also be specified in the
        `options.xml` file.
-       
+
 ## Managing Lists of Users
 
 The `glcmds users list` command can be used to lookup user IDs from
