@@ -44,6 +44,28 @@ GitLab Commands
        or you can use `glcmds --auth <path>` to specify an alternative
        location.  An alternative location can also be specified in the
        `options.xml` file.
+       
+## Managing Lists of Users
+
+The `glcmds users list` command can be used to lookup user IDs from
+usernames or e-mail addresss and output resulting list of users to
+users.xml file.  The users.xml file can then be used as the input of
+other commands that accept a list of users.
+
+If users.xml does not exist, one can be created as follows:
+
+ ```
+ glcmds users list --out users.xml --users 'foo,bar'
+ ```
+
+If users.xml already exists, new users can be appended to it using the
+same syntax as above :
+
+ ```
+ glcmds users list --out users.xml --users 'baz'
+ ```
+
+To remove a user from your users.xml file, just edit the file.
 
 ## Inverting --dry-run Logic
 
