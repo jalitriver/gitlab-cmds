@@ -198,7 +198,7 @@ type ApprovalRulesGetter interface {
 // an error, it will be forwarded to the caller as the error return
 // value for this function.
 func ForEachApprovalRuleInProject(
-	s ApprovalRulesGetter /* was *gitlab.ProjectsService */,
+	s ApprovalRulesGetter, /* was *gitlab.ProjectsService */
 	p *gitlab.Project,
 	f func(
 		approvalRule *gitlab.ProjectApprovalRule,
@@ -222,6 +222,93 @@ func ForEachApprovalRuleInProject(
 		// Invoke the callbacks.
 		for _, rule := range rules {
 			more, err := f(rule)
+			if err != nil {
+				return err
+			}
+			if !more {
+				return nil
+			}
+		}
+
+		// Check if done.
+		if resp.NextPage == 0 {
+			break
+		}
+
+		// Move to the next page.
+		opts.Page = resp.NextPage
+	}
+
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////
+// Users
+////////////////////////////////////////////////////////////////////////
+
+// FindExactUser search for the user and returns the user that exactly
+// matches the search string.  The search string can be the name,
+// username, or e-mail address of the user.
+func FindExactUser(
+	s *gitlab.UsersService,
+	user string,
+) (*gitlab.User, error) {
+	var exactMatches []*gitlab.User
+
+	// Iterate over all the users that match the "user" string.
+	ForEachUser(s, user, func(u *gitlab.User) (bool, error) {
+		if u.Email == user || u.Username == user || u.Name == user {
+			exactMatches = append(exactMatches, u)
+		}
+		return true, nil
+	})
+
+	if len(exactMatches) == 0 {
+		return nil, fmt.Errorf("no match found for user: %q", exactMatches)
+	}
+	if len(exactMatches) > 1 {
+		return nil, fmt.Errorf("multiple exact matches found: %q", exactMatches)
+	}
+
+	return exactMatches[0], nil
+
+}
+
+// ForEachUser iterates over users calling the function f once for
+// each user matching the search string.  An empty search string
+// matches all users.  The search string can be the name, username, or
+// e-mail address of the user.  The function f must return true and no
+// error to indicate that it wants to continue being called with the
+// remaining users.  If f returns an error, it will be forwarded to
+// the caller as the error return value for this function.
+//
+// Also see [FindExactUser()].
+func ForEachUser(
+	s *gitlab.UsersService,
+	user string,
+	f func(user *gitlab.User) (bool, error),
+) error {
+
+	// Set up the options for ListUsers().
+	opts := gitlab.ListUsersOptions{}
+	if user != "" {
+		opts.Search = &user
+	}
+	opts.Page = 1
+	///opts.PerPage = 100
+
+	// Iterate over each page of users.
+	for {
+
+		// Get the next page of users.
+		users, resp, err := s.ListUsers(&opts)
+		if err != nil {
+			return fmt.Errorf("ForEachUser: %w\n", err)
+		}
+
+		// Invoke the callback for each user.
+		for _, user := range users {
+			more, err := f(user)
 			if err != nil {
 				return err
 			}

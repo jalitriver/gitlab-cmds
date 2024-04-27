@@ -1,5 +1,5 @@
-// This file provides the implementation for the "projects approval-rules"
-// command which provides project related subcommands.
+// This file provides the implementation for the "users" command
+// which provides user related subcommands.
 //
 // If you need to add a new subcommand, do the following:
 //
@@ -14,7 +14,7 @@
 //      file.
 //
 //   3) Add the new subcommand as demonstrated in
-//      ProjectsCommand.addSubcmds().
+//      UsersCommand.addSubcmds().
 
 package commands
 
@@ -29,7 +29,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectsApprovalRulesOptions
+// UsersOptions
 ////////////////////////////////////////////////////////////////////////
 
 //
@@ -41,42 +41,42 @@ import (
 // lean, we factor out our options into their own data structure.
 //
 
-// ProjectsApprovalRulesOptions are the options needed by this command.
-type ProjectsApprovalRulesOptions struct {
-	ProjectsApprovalRulesListOpts ProjectsApprovalRulesListOptions `xml:"list-options"`
+// UsersOptions are the options needed by this command.
+type UsersOptions struct {
+	UsersListOpts UsersListOptions `xml:"list-options"`
 }
 
-// Initialize initializes this ProjectsApprovalRulesOptions instance so it can be
+// Initialize initializes this UsersOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
-func (opts *ProjectsApprovalRulesOptions) Initialize(flags *flag.FlagSet) {
+func (opts *UsersOptions) Initialize(flags *flag.FlagSet) {
 	// empty
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ProjectsApprovalRulesCommand
+// UsersCommand
 ////////////////////////////////////////////////////////////////////////
 
-// ProjectsApprovalRulesCommand provides subcommands for Gitlab project related
+// UsersCommand provides subcommands for Gitlab project related
 // maintenance.
-type ProjectsApprovalRulesCommand struct {
+type UsersCommand struct {
 
 	// Embed the Command members.
-	ParentCommand[ProjectsApprovalRulesOptions]
+	ParentCommand[UsersOptions]
 }
 
 // Usage prints the main usage message to the output writer.  If
 // err is not nil, it will be printed before the main output.
-func (cmd *ProjectsApprovalRulesCommand) Usage(out io.Writer, err error) {
+func (cmd *UsersCommand) Usage(out io.Writer, err error) {
 	basename := filepath.Base(os.Args[0])
 	if err != nil {
 		fmt.Fprintf(out, "%v\n", err)
 	}
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out,
-		"Usage: %s [global_options] projects approval-rules [subcmd]\n",
+		"Usage: %s [global_options] users [subcmd]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "    Command for administering approval rules for Gitlab projects.\n")
+	fmt.Fprintf(out, "    Command for administering a Gitlab users.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Subcommands:\n")
 	fmt.Fprintf(out, "\n")
@@ -91,23 +91,23 @@ func (cmd *ProjectsApprovalRulesCommand) Usage(out io.Writer, err error) {
 }
 
 // addSubcmds adds the subcommands for this command.
-func (cmd *ProjectsApprovalRulesCommand) addSubcmds(client *gitlab.Client) {
-	cmd.subcmds["list"] = NewProjectsApprovalRulesListCommand(
-		"list", &cmd.options.ProjectsApprovalRulesListOpts, client)
+func (cmd *UsersCommand) addSubcmds(client *gitlab.Client) {
+	cmd.subcmds["list"] = NewUsersListCommand(
+		"list", &cmd.options.UsersListOpts, client)
 }
 
-// NewProjectsApprovalRulesCommand returns a new, initialized
-// ProjectsApprovalRulesCommand instance having the specified name.
-func NewProjectsApprovalRulesCommand(
+// NewUsersCommand returns a new, initialized UsersCommand
+// instance having the specified name.
+func NewUsersCommand(
 	name string,
-	opts *ProjectsApprovalRulesOptions,
+	opts *UsersOptions,
 	client *gitlab.Client,
-) *ProjectsApprovalRulesCommand {
+) *UsersCommand {
 
 	// Create the new command.
-	cmd := &ProjectsApprovalRulesCommand{
-		ParentCommand: ParentCommand[ProjectsApprovalRulesOptions]{
-			BasicCommand: BasicCommand[ProjectsApprovalRulesOptions]{
+	cmd := &UsersCommand{
+		ParentCommand: ParentCommand[UsersOptions]{
+			BasicCommand: BasicCommand[UsersOptions]{
 				name:    name,
 				flags:   flag.NewFlagSet(name, flag.ExitOnError),
 				options: opts,
@@ -129,7 +129,7 @@ func NewProjectsApprovalRulesCommand(
 }
 
 // Run is the entry point for this command.
-func (cmd *ProjectsApprovalRulesCommand) Run(args []string) error {
+func (cmd *UsersCommand) Run(args []string) error {
 	var err error
 
 	// Parse command-line arguments.

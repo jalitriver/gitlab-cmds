@@ -51,6 +51,9 @@ type Options struct {
 
 	// Options for the "projects" command.
 	ProjectsOpts ProjectsOptions `xml:"projects-options"`
+
+	// Options for the "users" command.
+	UsersOpts UsersOptions `xml:"users-options"`
 }
 
 // LoadFromXMLFile loads options from the XML file.
@@ -329,6 +332,10 @@ func (cmd *GlobalCommand) addSubcmdGenerators() {
 	cmd.generators["projects"] = func(client *gitlab.Client) Runner {
 		return NewProjectsCommand(
 			"projects", &cmd.allOpts.ProjectsOpts, client)
+	}
+	cmd.generators["users"] = func(client *gitlab.Client) Runner {
+		return NewUsersCommand(
+			"users", &cmd.allOpts.UsersOpts, client)
 	}
 }
 

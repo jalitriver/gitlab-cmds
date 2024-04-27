@@ -13,43 +13,43 @@ import (
 // Stubs
 ////////////////////////////////////////////////////////////////////////
 
-type GitlabProjectsServiceStub struct {}
+type GitlabProjectsServiceStub struct{}
 
-func (s *GitlabProjectsServiceStub)	GetProjectApprovalRules(
+func (s *GitlabProjectsServiceStub) GetProjectApprovalRules(
 	pid interface{},
 	opt *gitlab.GetProjectApprovalRulesListsOptions,
 	options ...gitlab.RequestOptionFunc,
 ) ([]*gitlab.ProjectApprovalRule, *gitlab.Response, error) {
 
-	resp := gitlab.Response {
+	resp := gitlab.Response{
 		NextPage: 0,
-		}
+	}
 
 	rules := []*gitlab.ProjectApprovalRule{
 		&gitlab.ProjectApprovalRule{
-			ID: 1,
+			ID:   1,
 			Name: "Rule1",
 			EligibleApprovers: []*gitlab.BasicUser{
 				&gitlab.BasicUser{
-					ID: 1,
+					ID:       1,
 					Username: "aberns",
 				},
 				&gitlab.BasicUser{
-					ID: 2,
+					ID:       2,
 					Username: "bcrocket",
 				},
 			},
 		},
 		&gitlab.ProjectApprovalRule{
-			ID: 2,
+			ID:   2,
 			Name: "Rule2",
 			EligibleApprovers: []*gitlab.BasicUser{
 				&gitlab.BasicUser{
-					ID: 3,
+					ID:       3,
 					Username: "cdragun",
 				},
 				&gitlab.BasicUser{
-					ID: 4,
+					ID:       4,
 					Username: "delliot",
 				},
 			},
@@ -96,10 +96,10 @@ func TestForEachApprovalRuleInProject(t *testing.T) {
 		"1: Rule1: [(1, aberns), (2, bcrocket)]",
 		"2: Rule2: [(3, cdragun), (4, delliot)]",
 	}
-	
+
 	ForEachApprovalRuleInProject(
 		&service, &p,
-		func (rule *gitlab.ProjectApprovalRule) (bool, error) {
+		func(rule *gitlab.ProjectApprovalRule) (bool, error) {
 			actual = append(actual, collectApprovalRules(rule))
 			return true, nil
 		})

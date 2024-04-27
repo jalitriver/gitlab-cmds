@@ -182,9 +182,9 @@ func (cmd *ProjectsApprovalRulesListCommand) Run(args []string) error {
 			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
 			gitlab_util.ForEachApprovalRuleInProject(
 				cmd.client.Projects, p,
-				func (rule *gitlab.ProjectApprovalRule) (bool, error) {
+				func(rule *gitlab.ProjectApprovalRule) (bool, error) {
 					fmt.Printf("    %v\n", ApprovalRuleToString(rule))
-					return true, nil					
+					return true, nil
 				})
 			return true, nil
 		})

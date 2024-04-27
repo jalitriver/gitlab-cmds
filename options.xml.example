@@ -88,4 +88,23 @@
 
   </projects-options>
 
+  <!-- Options for the "users" command. -->
+  <users-options>
+
+    <!-- Options for the users list" command. -->
+    <list-options>
+
+      <!-- Users to list. -->
+      <users>
+        <!--
+        <user>foo@example.com</user>
+        <user>bar@example.com</user>
+        <user>baz@example.com</user>
+        -->
+      </users>
+
+    </list-options>
+
+  </users-options>
+
 </options>

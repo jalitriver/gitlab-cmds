@@ -43,7 +43,6 @@ import (
 
 // ProjectsOptions are the options needed by this command.
 type ProjectsOptions struct {
-
 	ProjectsApprovalRulesOpts ProjectsApprovalRulesOptions `xml:"approval-rules-options"`
 
 	ProjectsCreateRandomOpts ProjectsCreateRandomOptions `xml:"create-random-options"`
