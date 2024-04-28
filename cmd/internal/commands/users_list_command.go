@@ -10,8 +10,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
+	"time"
 
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/date_arg"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/string_slice"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/xml_users"
@@ -34,6 +35,10 @@ import (
 // UsersListOptions are the options needed by this command.
 type UsersListOptions struct {
 
+	// CreatedDate is the date after which users must have been
+	// created in order to be listed.
+	CreatedAfter date_arg.DateArg `xml:"created-after"`
+
 	// OutputFileName is the name of XML output file to which users
 	// will be appended.  If empty, no XML output file is written, but
 	// there will still be logging to the console.  If set to "-", XML
@@ -47,6 +52,11 @@ type UsersListOptions struct {
 // Initialize initializes this UsersListOptions instance so it can be
 // used with the "flag" package to parse the command-line arguments.
 func (opts *UsersListOptions) Initialize(flags *flag.FlagSet) {
+
+	// --created-after
+	flags.Var(&opts.CreatedAfter, "created-after",
+		"date after which users not specified by user ID must have been "+
+			"created to be listed")
 
 	// --out
 	flags.StringVar(&opts.OutputFileName, "out", opts.OutputFileName,
@@ -85,6 +95,10 @@ func (cmd *UsersListCommand) Usage(out io.Writer, err error) {
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "    List users matching search strings and optionally\n")
 	fmt.Fprintf(out, "    save the list of users to file.\n")
+	fmt.Fprintf(out, "\n")
+	fmt.Fprintf(out, "    WARNING: At the time of writing, listing users by e-mail\n")
+	fmt.Fprintf(out, "    address and the --created-after flag are not working\n")
+	fmt.Fprintf(out, "    with Gitlab CE.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "List Options:\n")
 	fmt.Fprintf(out, "\n")
@@ -148,18 +162,12 @@ func (cmd *UsersListCommand) Run(args []string) error {
 	// "user" search strings.  If an exact match is found, add them to
 	// the "found" list so we can write them to file before exiting if
 	// necessary.
-	firstWarning := true
 	if len(cmd.options.Users) > 0 {
 		for _, user := range cmd.options.Users {
-			if firstWarning && strings.IndexRune(user, '@') >= 0 {
-				fmt.Fprintf(
-					os.Stderr,
-					"*** Warning: searching by e-mail address has not been "+
-						"verified to work.  If you have problems, try "+
-						"searching by username instead.\n")
-				firstWarning = false
-			}
-			u, err = gitlab_util.FindExactUser(cmd.client.Users, user)
+			u, err = gitlab_util.FindExactUser(
+				cmd.client.Users,
+				user,
+				time.Time(cmd.options.CreatedAfter))
 			if err != nil {
 				return fmt.Errorf("unable to find user: %q\n", user)
 			}
@@ -170,7 +178,10 @@ func (cmd *UsersListCommand) Run(args []string) error {
 
 	// If no users were specified, list all users.
 	if len(cmd.options.Users) == 0 {
-		gitlab_util.ForEachUser(cmd.client.Users, "", /* user */
+		gitlab_util.ForEachUser(
+			cmd.client.Users,
+			"", /* user */
+			time.Time(cmd.options.CreatedAfter),
 			func(u *gitlab.User) (bool, error) {
 				found = append(found, u)
 				return true, printUser(u)

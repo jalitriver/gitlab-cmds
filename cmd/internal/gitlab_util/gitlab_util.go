@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -253,6 +254,7 @@ func ForEachApprovalRuleInProject(
 func FindExactUser(
 	s *gitlab.UsersService,
 	user string,
+	date time.Time,
 ) (*gitlab.User, error) {
 	var err error
 	var exactMatches []*gitlab.User
@@ -273,7 +275,7 @@ func FindExactUser(
 	err = nil
 
 	// Iterate over all the users that match the "user" string.
-	err = ForEachUser(s, user, func(u *gitlab.User) (bool, error) {
+	err = ForEachUser(s, user, date, func(u *gitlab.User) (bool, error) {
 		if u.Email == user || u.Username == user || u.Name == user {
 			exactMatches = append(exactMatches, u)
 		}
@@ -306,11 +308,13 @@ func FindExactUser(
 func ForEachUser(
 	s *gitlab.UsersService,
 	user string,
+	date time.Time,
 	f func(user *gitlab.User) (bool, error),
 ) error {
 
 	// Set up the options for ListUsers().
 	opts := gitlab.ListUsersOptions{}
+	opts.CreatedAfter = &date
 	if user != "" {
 		opts.Search = &user
 	}

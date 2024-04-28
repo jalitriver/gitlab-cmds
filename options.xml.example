@@ -94,7 +94,18 @@
     <!-- Options for the users list" command. -->
     <list-options>
 
-      <!-- Users to list. -->
+      <!-- CreatedAfter is the date after which users had to be
+           created in order to be listed.  The format is either
+           "YYYY/MM/DD" or "YYYY-MM-DD". -->
+      <created-after></created-after>
+
+      <!-- OutputFileName is the name of the output file to which
+           listed users are written.  If not output file name is
+           given, the users will not be written. -->
+      <output-file-name></output-file-name>
+
+      <!-- Users to list.  A user can be specified by user ID,
+           username, name, or e-mail address. -->
       <users>
         <!--
         <user>foo@example.com</user>
