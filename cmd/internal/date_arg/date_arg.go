@@ -70,7 +70,7 @@ func (d *DateArg) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) err
 
 	// Read the element into a string.
 	err := decoder.DecodeElement(&s, &start)
-	if  err != nil {
+	if err != nil {
 		return err
 	}
 
