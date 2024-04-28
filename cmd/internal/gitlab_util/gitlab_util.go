@@ -286,10 +286,14 @@ func FindExactUser(
 	}
 
 	if len(exactMatches) == 0 {
-		return nil, fmt.Errorf("no match found for user: %q", exactMatches)
+		return nil, fmt.Errorf("no match found for user: %q", user)
 	}
 	if len(exactMatches) > 1 {
-		return nil, fmt.Errorf("multiple exact matches found: %q", exactMatches)
+		var usernames []string
+		for _, exactMatch := range exactMatches {
+			usernames = append(usernames, exactMatch.Username)
+		}
+		return nil, fmt.Errorf("multiple exact matches found: %q", usernames)
 	}
 
 	return exactMatches[0], nil

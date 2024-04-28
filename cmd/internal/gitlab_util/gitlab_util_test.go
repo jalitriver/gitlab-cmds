@@ -89,6 +89,7 @@ func collectApprovalRules(rule *gitlab.ProjectApprovalRule) string {
 ////////////////////////////////////////////////////////////////////////
 
 func TestForEachApprovalRuleInProject(t *testing.T) {
+	var err error
 	service := GitlabProjectsServiceStub{}
 	p := gitlab.Project{}
 	var actual []string
@@ -97,12 +98,15 @@ func TestForEachApprovalRuleInProject(t *testing.T) {
 		"2: Rule2: [(3, cdragun), (4, delliot)]",
 	}
 
-	ForEachApprovalRuleInProject(
+	err = ForEachApprovalRuleInProject(
 		&service, &p,
 		func(rule *gitlab.ProjectApprovalRule) (bool, error) {
 			actual = append(actual, collectApprovalRules(rule))
 			return true, nil
 		})
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
 
 	if !slices.Equal(actual, expected) {
 		t.Errorf("ForEachApprovalRuleInProject: expected=%v  actual=%v",

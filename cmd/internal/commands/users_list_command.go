@@ -173,12 +173,15 @@ func (cmd *UsersListCommand) Run(args []string) error {
 			}
 			found = append(found, u)
 			err = printUser(u)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	// If no users were specified, list all users.
 	if len(cmd.options.Users) == 0 {
-		gitlab_util.ForEachUser(
+		err = gitlab_util.ForEachUser(
 			cmd.client.Users,
 			"", /* user */
 			time.Time(cmd.options.CreatedAfter),
@@ -186,6 +189,9 @@ func (cmd *UsersListCommand) Run(args []string) error {
 				found = append(found, u)
 				return true, printUser(u)
 			})
+		if err != nil {
+			return err
+		}
 	}
 
 	// Save results to output file.
