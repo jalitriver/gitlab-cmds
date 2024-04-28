@@ -54,7 +54,8 @@ func (opts *UsersListOptions) Initialize(flags *flag.FlagSet) {
 
 	// --users
 	flags.Var(&opts.Users, "users",
-		"comma-separated list of users to list")
+		"comma-separated list of user IDs, names, usernames, or "+
+			"e-mail addresses")
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,8 @@ func (cmd *UsersListCommand) Usage(out io.Writer, err error) {
 		"Usage: %s [global_options] users list [subcmd_options]\n",
 		basename)
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "    List users matching search strings and save to file.\n")
+	fmt.Fprintf(out, "    List users matching search strings and optionally\n")
+	fmt.Fprintf(out, "    save the list of users to file.\n")
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "List Options:\n")
 	fmt.Fprintf(out, "\n")

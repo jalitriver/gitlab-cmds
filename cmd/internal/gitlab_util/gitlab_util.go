@@ -5,6 +5,7 @@ package gitlab_util
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -247,21 +248,40 @@ func ForEachApprovalRuleInProject(
 ////////////////////////////////////////////////////////////////////////
 
 // FindExactUser search for the user and returns the user that exactly
-// matches the search string.  The search string can be the name,
-// username, or e-mail address of the user.
+// matches the search string.  The search string can be the user ID,
+// name, username or e-mail address of the user.
 func FindExactUser(
 	s *gitlab.UsersService,
 	user string,
 ) (*gitlab.User, error) {
+	var err error
 	var exactMatches []*gitlab.User
+	var u *gitlab.User
+	var userID int
+
+	// If "user" is an integer, it is a user ID which requires
+	// different processing.
+	userID, err = strconv.Atoi(user)
+	if err == nil {
+		opts := gitlab.GetUsersOptions{}
+		u, _, err = s.GetUser(userID, opts)
+		if err != nil {
+			return nil, err
+		}
+		return u, nil
+	}
+	err = nil
 
 	// Iterate over all the users that match the "user" string.
-	ForEachUser(s, user, func(u *gitlab.User) (bool, error) {
+	err = ForEachUser(s, user, func(u *gitlab.User) (bool, error) {
 		if u.Email == user || u.Username == user || u.Name == user {
 			exactMatches = append(exactMatches, u)
 		}
 		return true, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	if len(exactMatches) == 0 {
 		return nil, fmt.Errorf("no match found for user: %q", exactMatches)

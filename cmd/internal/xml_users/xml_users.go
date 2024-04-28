@@ -76,12 +76,12 @@ func ReadUsers(fname string) ([]*XmlUser, error) {
 	return xmlUsers.Users, nil
 }
 
-// MakeSetOfUsers returns the set of users as a map from user ID to
-// true if the user exists.
-func MakeSetOfUsers(users []*XmlUser) map[int]bool {
-	result := make(map[int]bool)
+// CountUsers returns the set of users as a map from username to the
+// number of times that user appears in the list.
+func CountUsers(users []*XmlUser) map[string]int {
+	result := make(map[string]int)
 	for _, user := range users {
-		result[user.ID] = true
+		result[user.Username]++
 	}
 	return result
 }
@@ -91,33 +91,33 @@ func MakeSetOfUsers(users []*XmlUser) map[int]bool {
 // users having the same ID in the XML file.
 func AppendUsersFromFile(
 	fname string,
-	xmlUsersNew []*XmlUser,
+	newXmlUsers []*XmlUser,
 ) ([]*XmlUser,
 	error,
 ) {
 	var err error
 	var result []*XmlUser
-	var xmlUsersOrig []*XmlUser
+	var origXmlUsers []*XmlUser
 
 	// Load the original list of XML users from the file.  If we get
 	// an error like "no such file or directory" we will just return
 	// the same slice that was passed in because there is no XML file
 	// to merge.
-	xmlUsersOrig, err = ReadUsers(fname)
+	origXmlUsers, err = ReadUsers(fname)
 	if err != nil {
-		return xmlUsersNew, nil
+		return newXmlUsers, nil
 	}
 
 	// Go does not have sets so we use a map to do a quick lookup to
 	// determine if the user performed a lookup on an existing user.
-	xmlUsersNewSet := MakeSetOfUsers(xmlUsersNew)
+	newXmlUsersCount := CountUsers(newXmlUsers)
 
 	// Keep the same order as in the original file.
-	for _, xmlUserOrig := range xmlUsersOrig {
+	for _, xmlUserOrig := range origXmlUsers {
 
 		// Skip original users if they have the same user ID as one of
 		// the new users.
-		if xmlUsersNewSet[xmlUserOrig.ID] {
+		if newXmlUsersCount[xmlUserOrig.Username] > 0 {
 			continue
 		}
 
@@ -126,7 +126,7 @@ func AppendUsersFromFile(
 	}
 
 	// Append the new users.
-	result = append(result, xmlUsersNew...)
+	result = append(result, newXmlUsers...)
 
 	return result, nil
 }
@@ -148,6 +148,18 @@ func WriteUsers(fname string, glUsers []*gitlab.User) error {
 
 	// Convert from gitlab.User to gilab_util.XmlUser.
 	xmlUsers = FromGitlabUsers(glUsers)
+
+	// Check for duplicate users.
+	xmlUsersCount := CountUsers(xmlUsers)
+	if len(xmlUsersCount) < len(xmlUsers) {
+		var dups []string
+		for username, count := range xmlUsersCount {
+			if count > 1 {
+				dups = append(dups, username)
+			}
+		}
+		return fmt.Errorf("WriteUsers: duplicate users detected: %q", dups)
+	}
 
 	// Append users from the original file to xmlUsers so they are not
 	// lost when the original file is overwritten.
