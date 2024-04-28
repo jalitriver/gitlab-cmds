@@ -144,9 +144,23 @@ func NewUsersListCommand(
 	return cmd
 }
 
-func printUser(user *gitlab.User) error {
-	_, err := fmt.Printf("%6d %-16s %-24s %s\n",
+// printUser prints the user.  If index is zero, the header is printed
+// on the line above the user.
+func printUser(index int, user *gitlab.User) error {
+
+	// Print the header if necessary.
+	if index == 0 {
+		_, err := fmt.Printf("%6s  %-16s  %-24s  %-24s\n",
+			"ID", "Username", "Name", "Email")
+		if err != nil {
+			return err
+		}
+	}
+
+	// Print the user.
+	_, err := fmt.Printf("%6d  %-16s  %-24s  %-24s\n",
 		user.ID, user.Username, user.Name, user.Email)
+
 	return err
 }
 
@@ -167,7 +181,7 @@ func (cmd *UsersListCommand) Run(args []string) error {
 	// the "found" list so we can write them to file before exiting if
 	// necessary.
 	if len(cmd.options.Users) > 0 {
-		for _, user := range cmd.options.Users {
+		for i, user := range cmd.options.Users {
 			u, err = gitlab_util.FindExactUser(
 				cmd.client.Users,
 				user,
@@ -176,7 +190,7 @@ func (cmd *UsersListCommand) Run(args []string) error {
 				return fmt.Errorf("unable to find user: %q\n", user)
 			}
 			found = append(found, u)
-			err = printUser(u)
+			err = printUser(i, u)
 			if err != nil {
 				return err
 			}
@@ -185,13 +199,15 @@ func (cmd *UsersListCommand) Run(args []string) error {
 
 	// If no users were specified, list all users.
 	if len(cmd.options.Users) == 0 {
+		i := 0
 		err = gitlab_util.ForEachUser(
 			cmd.client.Users,
 			"", /* user */
 			time.Time(cmd.options.CreatedAfter),
 			func(u *gitlab.User) (bool, error) {
 				found = append(found, u)
-				return true, printUser(u)
+				i++
+				return true, printUser(i-1, u)
 			})
 		if err != nil {
 			return err

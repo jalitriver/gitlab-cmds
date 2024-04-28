@@ -11,7 +11,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
 	"github.com/xanzy/go-gitlab"
@@ -136,27 +135,6 @@ func NewProjectsApprovalRulesListCommand(
 	return cmd
 }
 
-func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
-	var result strings.Builder
-
-	// Add rule ID and name.
-	result.WriteString(fmt.Sprintf("%v: %v: ", rule.ID, rule.Name))
-
-	// Iterate over the eligable approvers.
-	result.WriteString("[")
-	for i := 0; i < len(rule.EligibleApprovers); i++ {
-		if i > 0 {
-			result.WriteString(", ")
-		}
-		result.WriteString(fmt.Sprintf("(%v, %v)",
-			rule.EligibleApprovers[i].ID,
-			rule.EligibleApprovers[i].Username))
-	}
-	result.WriteString("]")
-
-	return result.String()
-}
-
 // Run is the entry point for this command.
 func (cmd *ProjectsApprovalRulesListCommand) Run(args []string) error {
 	var err error
@@ -183,7 +161,7 @@ func (cmd *ProjectsApprovalRulesListCommand) Run(args []string) error {
 			return true, gitlab_util.ForEachApprovalRuleInProject(
 				cmd.client.Projects, p,
 				func(rule *gitlab.ProjectApprovalRule) (bool, error) {
-					fmt.Printf("    %v\n", ApprovalRuleToString(rule))
+					fmt.Printf("    %v\n", gitlab_util.ApprovalRuleToString(rule))
 					return true, nil
 				})
 		})

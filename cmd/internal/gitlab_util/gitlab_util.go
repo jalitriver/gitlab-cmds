@@ -4,7 +4,9 @@ package gitlab_util
 
 import (
 	"fmt"
+	"hash/crc64"
 	"regexp"
+	"slices"
 	"strconv"
 	"time"
 
@@ -179,6 +181,71 @@ func GetAllProjects(
 ////////////////////////////////////////////////////////////////////////
 // Approval Rules
 ////////////////////////////////////////////////////////////////////////
+
+// ApprovalRuleToString converts the approval rule into a
+// human-readable string.
+func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
+	var usernames []string
+
+	// Extract the usernames of the eligible approvers.
+	for _, u := range rule.EligibleApprovers {
+		usernames = append(usernames, u.Username)
+	}
+
+	// Sort the usernames.
+	slices.Sort(usernames)
+
+	// Get the string representation of the usernames.
+	usernamesAsString := fmt.Sprintf("%q", usernames)
+
+	// Calculate the CRC-64 checksum of the usernames string.
+	cksum := crc64.Checksum(
+		[]byte(usernamesAsString),
+		crc64.MakeTable(crc64.ISO))
+
+	// Add rule ID and name.
+	return fmt.Sprintf("%#016x  %6d  %-16s  %s",
+		cksum, rule.ID, rule.Name, usernamesAsString)
+}
+
+// updateApprovalRule updates the approval rule for the project to
+// have the same values as before except with a new list of user IDs.
+// This function is designed to be the callback for
+// [ForEachApprovalRuleInProject()].
+func UpdateApprovalRule(
+	s *gitlab.ProjectsService,
+	projectID int,
+	rule *gitlab.ProjectApprovalRule,
+	userIDs []int,
+) error {
+	var err error
+	
+	// Extract the existing group IDs.
+	var groupIDs []int
+	for _, group := range rule.Groups {
+		groupIDs = append(groupIDs, group.ID)
+	}
+
+	// Extract the existing branch IDs.
+	var branchIDs []int
+	for _, branch := range rule.ProtectedBranches {
+		branchIDs = append(branchIDs, branch.ID)
+	}
+
+	// Set update options.
+	opts := gitlab.UpdateProjectLevelRuleOptions{
+		Name: gitlab.Ptr(rule.Name),
+		ApprovalsRequired: gitlab.Ptr(rule.ApprovalsRequired),
+		UserIDs: &userIDs,
+		GroupIDs: &groupIDs,
+		ProtectedBranchIDs: &branchIDs,
+		AppliesToAllProtectedBranches: gitlab.Ptr(rule.AppliesToAllProtectedBranches),
+	}
+
+	// Update the approval rule.
+	_, _, err = s.UpdateProjectApprovalRule(projectID, rule.ID, &opts)
+	return err
+}
 
 // ApprovalRulesGetter is an abstraction of GetProjectApprovalRules()
 // in gitlab.ProjectsService which was added so

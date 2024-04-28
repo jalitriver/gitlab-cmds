@@ -29,6 +29,53 @@
   <!-- Options for the "project" command. -->
   <projects-options>
 
+    <!-- Options for the "project approval-rules" command. -->
+    <approval-rules-options>
+
+      <!-- Options for the "project approval-rules list" command. -->
+      <list-options>
+        
+        <!-- Expr is the regular expression that filters the projects
+             for which approval rules will be listed.  An empty
+             regular expression matches all projects. -->
+        <expr></expr>
+
+        <!-- Group for which projects will be selected for which
+             approval rules will be listed.  The group should not be
+             empty. -->
+        <group></group>
+
+        <!-- Recursive controls whether the projects are selected
+             recursively. -->
+        <recursive>false</recursive>
+
+      </list-options>
+
+      <!-- Options for the "project approval-rules update" command. -->
+      <update-options>
+        
+        <!-- DryRun should cause the command to print what it would do
+             instead of actually doing it. -->
+        <dry-run>false</dry-run>
+
+        <!-- Expr is the regular expression that filters the projects
+             for which approval rules will be updated.  An empty
+             regular expression matches all projects. -->
+        <expr></expr>
+
+        <!-- Group for which projects will be selected for which
+             approval rules will be updated.  The group should not be
+             empty. -->
+        <group></group>
+
+        <!-- Recursive controls whether the projects are selected
+             recursively. -->
+        <recursive>false</recursive>
+
+      </update-options>
+
+    </approval-rules-options>
+
     <!-- Options for the "project create-random" command. -->
     <create-random-options>
 

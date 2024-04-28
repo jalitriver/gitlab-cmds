@@ -1,9 +1,7 @@
 package gitlab_util
 
 import (
-	"fmt"
 	"slices"
-	"strings"
 	"testing"
 
 	"github.com/xanzy/go-gitlab"
@@ -60,31 +58,6 @@ func (s *GitlabProjectsServiceStub) GetProjectApprovalRules(
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Functions
-////////////////////////////////////////////////////////////////////////
-
-func collectApprovalRules(rule *gitlab.ProjectApprovalRule) string {
-	var result strings.Builder
-
-	// Add rule ID and name.
-	result.WriteString(fmt.Sprintf("%v: %v: ", rule.ID, rule.Name))
-
-	// Iterate over the eligable approvers.
-	result.WriteString("[")
-	for i := 0; i < len(rule.EligibleApprovers); i++ {
-		if i > 0 {
-			result.WriteString(", ")
-		}
-		result.WriteString(fmt.Sprintf("(%v, %v)",
-			rule.EligibleApprovers[i].ID,
-			rule.EligibleApprovers[i].Username))
-	}
-	result.WriteString("]")
-
-	return result.String()
-}
-
-////////////////////////////////////////////////////////////////////////
 // Tests
 ////////////////////////////////////////////////////////////////////////
 
@@ -94,14 +67,14 @@ func TestForEachApprovalRuleInProject(t *testing.T) {
 	p := gitlab.Project{}
 	var actual []string
 	expected := []string{
-		"1: Rule1: [(1, aberns), (2, bcrocket)]",
-		"2: Rule2: [(3, cdragun), (4, delliot)]",
+		`0xcac460d19ffbb714       1  Rule1             ["aberns" "bcrocket"]`,
+		`0x056daac148e9b0a1       2  Rule2             ["cdragun" "delliot"]`,
 	}
 
 	err = ForEachApprovalRuleInProject(
 		&service, &p,
 		func(rule *gitlab.ProjectApprovalRule) (bool, error) {
-			actual = append(actual, collectApprovalRules(rule))
+			actual = append(actual, ApprovalRuleToString(rule))
 			return true, nil
 		})
 	if err != nil {
