@@ -18,7 +18,7 @@ features so the comannds are not fully tested, but they might work:
        
 1. glcmds projects approval-rules update
 
-    1. Gitlab CE does not ahave approval rules.
+    1. Gitlab CE does not have approval rules.
 
 ## Getting Started
 
