@@ -60,7 +60,8 @@ func (opts *UsersListOptions) Initialize(flags *flag.FlagSet) {
 	// --created-after
 	flags.Var(&opts.CreatedAfter, "created-after",
 		"date after which users not specified by user ID must have been "+
-			"created to be listed")
+			"created to be listed the form of which is YYYY/MM/DD or "+
+			"YYYY-MM-DD")
 
 	// --match-substrings
 	flags.BoolVar(&opts.MatchSubstrings, "match-substrings", opts.MatchSubstrings,
