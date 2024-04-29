@@ -67,8 +67,8 @@ func TestForEachApprovalRuleInProject(t *testing.T) {
 	p := gitlab.Project{}
 	var actual []string
 	expected := []string{
-		`0xcac460d19ffbb714       1  Rule1             ["aberns" "bcrocket"]`,
-		`0x056daac148e9b0a1       2  Rule2             ["cdragun" "delliot"]`,
+		`0xcac460d19ffbb714         1  Rule1             ["aberns" "bcrocket"]`,
+		`0x056daac148e9b0a1         2  Rule2             ["cdragun" "delliot"]`,
 	}
 
 	err = ForEachApprovalRuleInProject(

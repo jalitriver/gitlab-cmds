@@ -204,7 +204,7 @@ func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
 		crc64.MakeTable(crc64.ISO))
 
 	// Add rule ID and name.
-	return fmt.Sprintf("%#016x  %6d  %-16s  %s",
+	return fmt.Sprintf("%#016x  %8d  %-16s  %s",
 		cksum, rule.ID, rule.Name, usernamesAsString)
 }
 
