@@ -157,7 +157,7 @@ func (cmd *ProjectsApprovalRulesListCommand) Run(args []string) error {
 		cmd.options.Expr,
 		cmd.options.Recursive,
 		func(g *gitlab.Group, p *gitlab.Project) (bool, error) {
-			fmt.Printf("%v: %v\n", p.ID, p.PathWithNamespace)
+			fmt.Printf("%v\n", p.PathWithNamespace)
 			return true, gitlab_util.ForEachApprovalRuleInProject(
 				cmd.client.Projects, p,
 				func(rule *gitlab.ProjectApprovalRule) (bool, error) {
