@@ -215,7 +215,7 @@ func (cmd *ProjectsApprovalRulesUpdateCommand) Run(args []string) error {
 		approverIDs = append(approverIDs, approver.ID)
 	}
 
-	// Print each approval rule for each project.
+	// Update each approval rule for each project.
 	return gitlab_util.ForEachProjectInGroup(
 		cmd.client.Groups,
 		cmd.options.Group,
