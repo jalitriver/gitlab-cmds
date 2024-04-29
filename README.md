@@ -53,11 +53,11 @@ names, usernames, or e-mail addresses and output the resulting list of
 users to users.xml file.  The users.xml file can then be used as the
 input of other commands that accept a list of users.
 
-At the time of writing, searching by e-mail address does not seem to
-work.  I am not sure if that is a privacy feature that need to be
-disabled server-side or not.  At any rate, if you are not sure of the
-username, you can do a substring search which will list all usernames
-and names that contain the substring:
+At the time of writing, searching by e-mail address or by creation
+date does not seem to work.  I am not sure if these are privacy
+feature that need to be disabled server-side.  At any rate, if you are
+not sure of the username, you can do a substring search which will
+list all usernames and names that contain the substring:
 
  ```
  glcmds users list --match-substrings --users foo
