@@ -2,24 +2,6 @@
 
 GitLab Commands
 
-## WARNING
-
-All I had for testing was Gitlab CE which lacks too many needed
-features so the comannds are not fully tested, but they might work:
-
-1. glcmds users list
-
-    1. Searching for a user by e-mail address.  Gitlab CE does not
-       seem to honor this type of search.
-       
-    1. Limiting the search based on when a user was created does not
-       limit the search because Gitlab CE does not seem to honor this
-       type of search.
-       
-1. glcmds projects approval-rules update
-
-    1. Gitlab CE does not have approval rules.
-
 ## Getting Started
 
 1. Install the binary
