@@ -150,7 +150,7 @@ func printUser(index int, user *gitlab.User) error {
 
 	// Print the header if necessary.
 	if index == 0 {
-		_, err := fmt.Printf("%6s  %-16s  %-24s  %-24s\n",
+		_, err := fmt.Printf("%8s  %-16s  %-24s  %-24s\n",
 			"ID", "Username", "Name", "Email")
 		if err != nil {
 			return err
@@ -158,7 +158,7 @@ func printUser(index int, user *gitlab.User) error {
 	}
 
 	// Print the user.
-	_, err := fmt.Printf("%6d  %-16s  %-24s  %-24s\n",
+	_, err := fmt.Printf("%8d  %-16s  %-24s  %-24s\n",
 		user.ID, user.Username, user.Name, user.Email)
 
 	return err
