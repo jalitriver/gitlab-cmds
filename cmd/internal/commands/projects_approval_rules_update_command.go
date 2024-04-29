@@ -206,7 +206,7 @@ func (cmd *ProjectsApprovalRulesUpdateCommand) Run(args []string) error {
 	// Load list of approvers.
 	approvers, err = xml_users.ReadUsers(cmd.options.ApproversFileName)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	// Get the user IDs for the approvers.
