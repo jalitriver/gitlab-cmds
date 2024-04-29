@@ -58,6 +58,10 @@ func (opts *UsersListOptions) Initialize(flags *flag.FlagSet) {
 		"date after which users not specified by user ID must have been "+
 			"created to be listed")
 
+	// -o
+	flags.StringVar(&opts.OutputFileName, "o", opts.OutputFileName,
+		"name of XML output file to which users will be appended")
+
 	// --out
 	flags.StringVar(&opts.OutputFileName, "out", opts.OutputFileName,
 		"name of XML output file to which users will be appended")
