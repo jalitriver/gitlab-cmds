@@ -45,6 +45,10 @@ type UsersListOptions struct {
 	// output will be written to os.Stdout.
 	OutputFileName string `xml:"output-file-name"`
 
+	// MatchSubstrings controls whether all substrings matches are
+	// reported instead of only reporting exact matches.
+	MatchSubstrings bool `xml:"match-substrings"`
+
 	// Users (for the --users option)
 	Users string_slice.StringSlice `xml:"users>user"`
 }
@@ -57,6 +61,11 @@ func (opts *UsersListOptions) Initialize(flags *flag.FlagSet) {
 	flags.Var(&opts.CreatedAfter, "created-after",
 		"date after which users not specified by user ID must have been "+
 			"created to be listed")
+
+	// --match-substrings
+	flags.BoolVar(&opts.MatchSubstrings, "match-substrings", opts.MatchSubstrings,
+		"whether all substrings matches are reported instead of reporting "+
+			"only exact matches")
 
 	// -o
 	flags.StringVar(&opts.OutputFileName, "o", opts.OutputFileName,
@@ -168,7 +177,7 @@ func printUser(index int, user *gitlab.User) error {
 func (cmd *UsersListCommand) Run(args []string) error {
 	var err error
 	var found []*gitlab.User
-	var u *gitlab.User
+	var users []*gitlab.User
 
 	// Parse command-line arguments.
 	err = cmd.flags.Parse(args)
@@ -182,17 +191,20 @@ func (cmd *UsersListCommand) Run(args []string) error {
 	// necessary.
 	if len(cmd.options.Users) > 0 {
 		for i, user := range cmd.options.Users {
-			u, err = gitlab_util.FindExactUser(
+			users, err = gitlab_util.FindUsers(
 				cmd.client.Users,
 				user,
+				!cmd.options.MatchSubstrings,
 				time.Time(cmd.options.CreatedAfter))
 			if err != nil {
 				return fmt.Errorf("unable to find user: %q\n", user)
 			}
-			found = append(found, u)
-			err = printUser(i, u)
-			if err != nil {
-				return err
+			found = append(found, users...)
+			for j, u := range users {
+				err = printUser(i+j, u)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

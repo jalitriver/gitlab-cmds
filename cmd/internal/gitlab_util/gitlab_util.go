@@ -315,16 +315,20 @@ func ForEachApprovalRuleInProject(
 // Users
 ////////////////////////////////////////////////////////////////////////
 
-// FindExactUser search for the user and returns the user that exactly
-// matches the search string.  The search string can be the user ID,
-// name, username or e-mail address of the user.
-func FindExactUser(
+// FindUser search for the user and returns the user that exactly
+// matches the search string or all substring matches if exact is
+// false.  The search string can be the user ID, name, username or
+// e-mail address of the user.  If the search string is a user ID, the
+// exact flag is ignored, and only the exact user with that ID will be
+// returned.
+func FindUsers(
 	s *gitlab.UsersService,
 	user string,
+	exact bool,
 	date time.Time,
-) (*gitlab.User, error) {
+) ([]*gitlab.User, error) {
 	var err error
-	var exactMatches []*gitlab.User
+	var matches []*gitlab.User
 	var u *gitlab.User
 	var userID int
 
@@ -337,14 +341,14 @@ func FindExactUser(
 		if err != nil {
 			return nil, err
 		}
-		return u, nil
+		return []*gitlab.User{u}, nil
 	}
 	err = nil
 
 	// Iterate over all the users that match the "user" string.
 	err = ForEachUser(s, user, date, func(u *gitlab.User) (bool, error) {
-		if u.Email == user || u.Username == user || u.Name == user {
-			exactMatches = append(exactMatches, u)
+		if !exact || u.Email == user || u.Username == user || u.Name == user {
+			matches = append(matches, u)
 		}
 		return true, nil
 	})
@@ -352,19 +356,18 @@ func FindExactUser(
 		return nil, err
 	}
 
-	if len(exactMatches) == 0 {
+	if len(matches) == 0 {
 		return nil, fmt.Errorf("no match found for user: %q", user)
 	}
-	if len(exactMatches) > 1 {
+	if exact && len(matches) > 1 {
 		var usernames []string
-		for _, exactMatch := range exactMatches {
-			usernames = append(usernames, exactMatch.Username)
+		for _, match := range matches {
+			usernames = append(usernames, match.Username)
 		}
 		return nil, fmt.Errorf("multiple exact matches found: %q", usernames)
 	}
 
-	return exactMatches[0], nil
-
+	return matches, nil
 }
 
 // ForEachUser iterates over users calling the function f once for

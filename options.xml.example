@@ -53,6 +53,11 @@
 
       <!-- Options for the "project approval-rules update" command. -->
       <update-options>
+
+        <!-- ApproversFileName is the name of the XML file holding the
+             list of allowed approvers which should contain the output
+             of the "glmcds users list" command. -->
+        <approvers-file-name></approvers-file-name>
         
         <!-- DryRun should cause the command to print what it would do
              instead of actually doing it. -->
@@ -145,6 +150,10 @@
            created in order to be listed.  The format is either
            "YYYY/MM/DD" or "YYYY-MM-DD". -->
       <created-after></created-after>
+
+      <!-- MatchSubstrings controls whether all substrings matches are
+           reported instead of only reporting exact matches. -->
+      <match-substrings>false</match-substrings>
 
       <!-- OutputFileName is the name of the output file to which
            listed users are written.  If not output file name is
