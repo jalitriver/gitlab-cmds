@@ -4,7 +4,8 @@ GitLab Commands
 
 ## Getting Started
 
-1. Install the binary
+1. Install the binary which by default will reside in `~/go/bin` which
+   should be added to your path:
 
     ```
         go install github.com/jalitriver/gitlab-cmds/cmd/glcmds@latest
