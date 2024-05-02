@@ -208,7 +208,7 @@ func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
 		cksum, rule.ID, rule.Name, usernamesAsString)
 }
 
-// updateApprovalRule updates the approval rule for the project to
+// UpdateApprovalRule updates the approval rule for the project to
 // have the same values as before except with a new list of user IDs.
 // This function is designed to be the callback for
 // [ForEachApprovalRuleInProject()].
