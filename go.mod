@@ -3,6 +3,7 @@ module github.com/jalitriver/gitlab-cmds
 go 1.22.1
 
 require (
+	github.com/google/go-cmp v0.5.8
 	github.com/google/uuid v1.6.0
 	github.com/xanzy/go-gitlab v0.102.0
 )

@@ -11,8 +11,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/gitlab_util"
+	"github.com/jalitriver/gitlab-cmds/cmd/internal/slice_util"
 	"github.com/jalitriver/gitlab-cmds/cmd/internal/xml_users"
 	"github.com/xanzy/go-gitlab"
 )
@@ -169,18 +171,62 @@ func updateApprovalRule(
 	s *gitlab.ProjectsService,
 	projectID int,
 	rule *gitlab.ProjectApprovalRule,
-	userIDs []int,
+	targetUserIDs []int,
+	targetApproverUsernames []string,
 	dryRun bool,
 ) error {
 	var err error
-	fmt.Printf("    Updating rule %d (%q) ... ", rule.ID, rule.Name)
-	if !dryRun {
-		err = gitlab_util.UpdateApprovalRule(s, projectID, rule, userIDs)
-		if err != nil {
-			return err
+	var newRule *gitlab.ProjectApprovalRule
+	var newApproverUsernames []string
+	var oldApproverUsernames []string
+
+	// Get the old list approvers.
+	oldApproverUsernames = gitlab_util.GetApprovalRuleUsernames(rule)
+
+	// Try to update the approval rule but only if this is not a dry
+	// run and only if the new list of approvers is not the same as
+	// the old list of approvers.
+	fmt.Printf("    Updating rule %d (%q) ...\n", rule.ID, rule.Name)
+	if slices.Equal(targetApproverUsernames, oldApproverUsernames) {
+		fmt.Printf("        Skipped.  Same approvers: %q\n",
+			oldApproverUsernames)		
+	} else {
+
+		// Update the approval rule if this is not a dry run.
+		if !dryRun {
+			newRule, err = gitlab_util.UpdateApprovalRule(
+				s, projectID, rule, targetUserIDs)
+			if err != nil {
+				return err
+			}
 		}
+
+		// Print more information about the update to give the user
+		// confidence the correct update occurred or would have
+		// occurred if this is a dry run.
+		if !dryRun {
+			if newRule == nil {
+				return fmt.Errorf("UpdateApprovalRule() returned empty new rule")
+			}
+			newApproverUsernames = gitlab_util.GetApprovalRuleUsernames(newRule)
+		} else {
+			newApproverUsernames = targetApproverUsernames
+		}
+		if !slices.Equal(newApproverUsernames, targetApproverUsernames) {
+			return fmt.Errorf(
+				"new approvers (%q) not equal to target approvers (%q)",
+				newApproverUsernames, targetApproverUsernames)
+		}
+		removedUsernames :=
+			slice_util.SubtractSlice(oldApproverUsernames, newApproverUsernames)
+		fmt.Printf("        Removed approvers (delta): %q\n", removedUsernames)
+		addedUsernames :=
+			slice_util.SubtractSlice(newApproverUsernames, oldApproverUsernames)
+		fmt.Printf("        Added approvers (delta): %q\n", addedUsernames)
 	}
-	fmt.Printf("Done.\n")
+
+	fmt.Printf("        Done.\n")
+
 	return nil
 }
 
@@ -209,11 +255,15 @@ func (cmd *ProjectsApprovalRulesUpdateCommand) Run(args []string) error {
 		return err
 	}
 
-	// Get the user IDs for the approvers.
+	// Get the sorted list of user IDs and usernames for the approvers.
 	var approverIDs []int
+	var approverUsernames []string
 	for _, approver := range approvers {
 		approverIDs = append(approverIDs, approver.ID)
+		approverUsernames = append(approverUsernames, approver.Username)
 	}
+	slices.Sort(approverIDs)
+	slices.Sort(approverUsernames)
 
 	// Update each approval rule for each project.
 	return gitlab_util.ForEachProjectInGroup(
@@ -232,6 +282,7 @@ func (cmd *ProjectsApprovalRulesUpdateCommand) Run(args []string) error {
 						p.ID,
 						rule,
 						approverIDs,
+						approverUsernames,
 						cmd.options.DryRun)
 				})
 		})

@@ -182,20 +182,31 @@ func GetAllProjects(
 // Approval Rules
 ////////////////////////////////////////////////////////////////////////
 
-// ApprovalRuleToString converts the approval rule into a
-// human-readable string.
-func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
+// GetApprovalRuleUsernames returns the sorted list of usernames for
+// the given approval rule.
+func GetApprovalRuleUsernames(rule *gitlab.ProjectApprovalRule) []string {
 	var usernames []string
 
 	// Extract the usernames of the eligible approvers.
-	for _, u := range rule.EligibleApprovers {
+	for _, u := range rule.Users {
 		usernames = append(usernames, u.Username)
 	}
 
 	// Sort the usernames.
 	slices.Sort(usernames)
 
-	// Get the string representation of the usernames.
+	return usernames
+}
+
+// ApprovalRuleToString converts the approval rule into a
+// human-readable string.
+func ApprovalRuleToString(rule *gitlab.ProjectApprovalRule) string {
+
+	// Get the users for the approval rule.  Note that this does *not*
+	// include any groups that might also be part of the approval rule.
+	usernames := GetApprovalRuleUsernames(rule)
+
+	// Get the string representation of the list of usernames.
 	usernamesAsString := fmt.Sprintf("%q", usernames)
 
 	// Calculate the CRC-64 checksum of the usernames string.
@@ -217,8 +228,12 @@ func UpdateApprovalRule(
 	projectID int,
 	rule *gitlab.ProjectApprovalRule,
 	userIDs []int,
-) error {
+) (
+	*gitlab.ProjectApprovalRule,
+	error,
+){
 	var err error
+	var newRule *gitlab.ProjectApprovalRule
 	
 	// Extract the existing group IDs.
 	var groupIDs []int
@@ -243,8 +258,9 @@ func UpdateApprovalRule(
 	}
 
 	// Update the approval rule.
-	_, _, err = s.UpdateProjectApprovalRule(projectID, rule.ID, &opts)
-	return err
+	newRule, _, err = s.UpdateProjectApprovalRule(projectID, rule.ID, &opts)
+	
+	return newRule, err
 }
 
 // ApprovalRulesGetter is an abstraction of GetProjectApprovalRules()
