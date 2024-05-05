@@ -19,6 +19,7 @@ package commands
 
 import (
 	"encoding/xml"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -235,11 +236,20 @@ func PeakAtGlobalOptions(args []string) (*GlobalOptions, error) {
 		return nil, err
 	}
 
-	// Load the options from the XML file to override the hard-coded defaults.
+	// Load the options from the XML file to override the hard-coded
+	// defaults.  Note that we quash the error that results if the XML
+	// file does not exist so that --help and --version can be
+	// processed.  The error for the XML options file being missing
+	// will still be reported but later when we load the options for
+	// real instead of just peaking at the global options.
 	if optionsFileName != "" {
 		err = opts.LoadFromXMLFile(optionsFileName)
 		if err != nil {
-			return nil, err
+			if errors.Is(err, os.ErrNotExist) {
+				err = nil
+			} else {
+				return nil, err
+			}
 		}
 	}
 
