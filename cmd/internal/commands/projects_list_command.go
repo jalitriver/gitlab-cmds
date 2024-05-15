@@ -53,7 +53,7 @@ func (opts *ProjectsListOptions) Initialize(flags *flag.FlagSet) {
 
 	// --group
 	flags.StringVar(&opts.Group, "group", opts.Group,
-		"group to list")
+		"group to list which can be the full path or the group ID")
 
 	// -r
 	flags.BoolVar(&opts.Recursive, "r", opts.Recursive,

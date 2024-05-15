@@ -30,6 +30,19 @@ func GroupFullPaths(groups []*gitlab.Group) []string {
 // the search string.
 func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error) {
 
+ 	// If "group" is an integer, it is a group ID which requires
+	// different processing.
+	groupID, err := strconv.Atoi(group)
+	if err == nil {
+		opts := gitlab.GetGroupOptions{}
+		g, _, err := s.GetGroup(groupID, &opts)
+		if err != nil {
+			return nil, err
+		}
+		return g, nil
+	}
+	err = nil
+
 	// Set the group search string.
 	opts := gitlab.ListGroupsOptions{}
 	opts.Page = 1
@@ -62,7 +75,7 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 	}
 
 	// Could not find a matching group.
-	err := fmt.Errorf(
+	err = fmt.Errorf(
 		"FindExactGroup: could not find exact match for group: %q", group)
 	return nil, err
 }

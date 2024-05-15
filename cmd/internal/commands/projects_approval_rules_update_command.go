@@ -83,7 +83,7 @@ func (opts *ProjectsApprovalRulesUpdateOptions) Initialize(flags *flag.FlagSet) 
 
 	// --group
 	flags.StringVar(&opts.Group, "group", opts.Group,
-		"group to update")
+		"group to update which can be the full path or the group ID")
 
 	// -r
 	flags.BoolVar(&opts.Recursive, "r", opts.Recursive,
