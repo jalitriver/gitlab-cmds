@@ -26,8 +26,9 @@ func GroupFullPaths(groups []*gitlab.Group) []string {
 	return result
 }
 
-// FindExactGroup returns the ID of the group that exactly matches
-// the search string.
+// FindExactGroup returns the ID of the group that exactly matches the
+// search string.  If the group search string is an integer, it is
+// assumed to be a group ID.
 func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error) {
 
  	// If "group" is an integer, it is a group ID which requires
@@ -84,15 +85,16 @@ func FindExactGroup(s *gitlab.GroupsService, group string) (*gitlab.Group, error
 // Projects
 ////////////////////////////////////////////////////////////////////////
 
-// ForEachProjectInGroup iterates over the projects in a group and
-// recursively or not) calls the function f once for each project
-// whose full path name matches the regular expression.  An empty
-// regular expression matches any string.  The function f must return
-// true and no error to indicate that it wants to continue being
-// called with the remaining projects.  If f returns an error, it will
-// be forwarded to the caller as the error return value for this
-// function.  Prefer this function over GetAllProjects() to avoid the
-// long delay to the user while waiting to collect all the projects.
+// ForEachProjectInGroup iterates over the projects in a group (which
+// can be the full path to the group or the group ID) and recursively
+// or not) calls the function f once for each project whose full path
+// name matches the regular expression.  An empty regular expression
+// matches any string.  The function f must return true and no error
+// to indicate that it wants to continue being called with the
+// remaining projects.  If f returns an error, it will be forwarded to
+// the caller as the error return value for this function.  Prefer
+// this function over GetAllProjects() to avoid the long delay to the
+// user while waiting to collect all the projects.
 func ForEachProjectInGroup(
 	s *gitlab.GroupsService,
 	group string,
